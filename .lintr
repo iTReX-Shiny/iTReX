@@ -1,0 +1,7 @@
+linters: with_defaults(
+  open_curly_linter = NULL, # https://github.com/jimhester/lintr/issues/487
+  object_usage_linter = NULL, # to be fixed
+  line_length_linter = NULL, # to be fixed
+  object_name_linter = NULL, # to be fixed
+  cyclocomp_linter = NULL # to be fixed
+  )

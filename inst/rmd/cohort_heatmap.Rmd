@@ -1,0 +1,8 @@
+---
+title: "cohort_heatmap"
+output: html_document
+---
+
+```{r, fig.dim=c(width, height)}
+cohort_heatmap
+```

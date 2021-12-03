@@ -1,0 +1,357 @@
+{
+  "input": {
+    "Amin_select": "var10",
+    "Amin_slider": 10,
+    "CRA_colcluster": "euclidean",
+    "CRA_include_sd": true,
+    "CRA_include_zp": true,
+    "CRA_mod": "CRA Therapy Parameters",
+    "CRA_rowcluster": "euclidean",
+    "CRA_sdss": false,
+    "CRAc_height": 250,
+    "CRAc_width": 500,
+    "dropdown_cohort": 0,
+    "dropdown_healthy_controls": 0,
+    "dropdown_single_sample": 0,
+    "dropdownHitNetDrugAnnotation": 0,
+    "dropdownHitNetDrugDank": 0,
+    "dropdownOmicsAnnotationTable": 0,
+    "dropdownOmicsTable": 0,
+    "DTanno": "Tupload",
+    "DTannoO": "Tupload",
+    "file_drugbank": null,
+    "file_drugbankO": null,
+    "file_drugtarget": null,
+    "file_drugtargetO": null,
+    "fileOmics": null,
+    "healthy_controls_file": null,
+    "HitNet": 0,
+    "HitNetLicense": false,
+    "iTReX": "QCN-mod",
+    "layout_and_readouts": "separate_files",
+    "layout_table_file": {
+      "name": [
+        "iTReX-Demo_MRA_Layout-Imaging-3Plates.xlsx"
+      ],
+      "size": [
+        50711
+      ],
+      "type": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "datapath": [
+        "0.xlsx"
+      ]
+    },
+    "MRA_colcluster": "euclidean",
+    "MRA_include_sd": true,
+    "MRA_include_zp": true,
+    "MRA_mod": "MRA Therapy Parameters",
+    "MRA_rowcluster": "euclidean",
+    "MRA_sdss": false,
+    "MRAc_height": 250,
+    "MRAc_width": 500,
+    "nplranalyzeperreplica": 0,
+    "number_of_samples": "single_sample",
+    "Omics": 0,
+    "OmicsLicense": false,
+    "QC_mod": "Plate Layout",
+    "readout_matrices_file": {
+      "name": [
+        "iTReX-Demo_MRA_1ReadoutTxt_NA.zip"
+      ],
+      "size": [
+        2217
+      ],
+      "type": [
+        "application/zip"
+      ],
+      "datapath": [
+        "0.zip"
+      ]
+    },
+    "sample": "BT-40_V1_DS1_NA",
+    "sample_CRA": "BT-40_V1_DS1_NA",
+    "sample_MRA": "BT-40_V1_DS1_NA",
+    "sample_net": "BT-40_V1_DS1_NA",
+    "sample_omics": "BT-40_V1_DS1_NA",
+    "screen_type": "Monotherapy",
+    "screen_type_O": "Monotherapy",
+    "start_oca": 1,
+    "summary_cell_clicked": {
+
+    },
+    "summary_cells_selected": [
+
+    ],
+    "summary_columns_selected": null,
+    "summary_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "summary_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "summary_rows_selected": null,
+    "summary_search": "",
+    "summary_state": null,
+    "TCA": 0,
+    "threshold": 2,
+    "threshold_O": 2,
+    "Tupload_input": null,
+    "Tupload_inputO": null,
+    "type_of_analysis": "OCA",
+    "type_of_readout": "cell_viability",
+    "upload_healthy_controls": false,
+    "viewQCreport": 0,
+    "vis_CRA": 0,
+    "vis_MRA": 0,
+    "vis_QCN": 1
+  },
+  "output": {
+    "download_oca": {
+      "html": "<a id=\"Archive\" class=\"btn btn-default shiny-download-link \" href=\"\" target=\"_blank\" download>\n  <i class=\"fa fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Results\n<\/a>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "5.15.3",
+          "src": {
+            "href": "font-awesome-5.15.3"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "end_oca": "One-Click Analysis is complete.",
+    "healthy_controls_uploaded": false,
+    "layout_table_uploaded": true,
+    "layout1": {
+      "src": "[image data sha1: fd2848125ca7ae84fc83b90a73ce6f886bca2968]",
+      "width": 1300,
+      "height": 900,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "domain": {
+              "left": -0.04,
+              "right": 1.04,
+              "bottom": -0.04,
+              "top": 1.04
+            },
+            "range": {
+              "left": 0,
+              "right": 1300,
+              "bottom": 899,
+              "top": -1
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "mapping": {
+
+            }
+          }
+        ],
+        "dims": {
+          "width": 1300,
+          "height": 900
+        }
+      }
+    },
+    "readout_matrices_uploaded": true,
+    "screen": {
+      "src": "[image data sha1: e5495a2e273db36d08bf4b7880cd4ea95965fb13]",
+      "width": 1230,
+      "height": 400,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "domain": {
+              "left": -0.04,
+              "right": 1.04,
+              "bottom": -0.04,
+              "top": 1.04
+            },
+            "range": {
+              "left": 0,
+              "right": 1230,
+              "bottom": 399,
+              "top": -1
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "mapping": {
+
+            }
+          }
+        ],
+        "dims": {
+          "width": 1230,
+          "height": 400
+        }
+      }
+    },
+    "summary": {
+      "x": {
+        "filter": "none",
+        "vertical": false,
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>BzCl<\/th>\n      <th>empty<\/th>\n      <th>neg<\/th>\n      <th>pos<\/th>\n      <th>therapy<\/th>\n      <th>TRC<\/th>\n      <th>untreated<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "columnDefs": [
+            {
+              "targets": 1,
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+            },
+            {
+              "targets": 2,
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+            },
+            {
+              "targets": 3,
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+            },
+            {
+              "targets": 4,
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+            },
+            {
+              "targets": 5,
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+            },
+            {
+              "targets": 6,
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+            },
+            {
+              "targets": 7,
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+            },
+            {
+              "orderable": false,
+              "targets": 0
+            }
+          ],
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.columnDefs.0.render",
+        "options.columnDefs.1.render",
+        "options.columnDefs.2.render",
+        "options.columnDefs.3.render",
+        "options.columnDefs.4.render",
+        "options.columnDefs.5.render",
+        "options.columnDefs.6.render",
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.11.3",
+          "src": {
+            "href": "dt-core-1.11.3"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.0",
+          "src": {
+            "href": "crosstalk-1.2.0"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "text1": "Screen Summary",
+    "text2": "Raw Count Distribution",
+    "text3": "Plate Layout"
+  },
+  "export": {
+
+  }
+}

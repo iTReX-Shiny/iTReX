@@ -1,0 +1,518 @@
+---
+title: "iTReX User Manual"
+output:
+   rmdformats::material:
+    css: iTReX-User-Manual.css
+    fig_width: 10
+    fig_height: 10
+    mathjax: NULL
+    thumbnails: false
+pkgdown:
+  as_is: true
+vignette: >
+  %\VignetteIndexEntry{iTReX User Manual}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, setup, include=FALSE}
+
+# Do not include code or output (do show warnings and errors!)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, dpi = 96)
+
+# Make widget IDs reproducible
+htmlwidgets::setWidgetIdSeed(0)
+
+# Convenience functions
+demo_path <- function(stem, ext, web = FALSE) {
+  filename <- paste0("iTReX-Demo_", stem, ".", ext)
+  path <- file.path("..", "inst", "shiny", "www", "demo", filename)
+
+  if (!web) {
+    return(path)
+  }
+
+  stopifnot(file.exists(path))
+  file.path("https://itrex.kitz-heidelberg.de/iTReX/", "demo", filename)
+}
+
+test_path <- function(test, step) {
+  dirname <- paste0(test, "-expected")
+  filename <- paste0(step, ".png")
+  file.path("..", "inst", "shiny", "tests", "shinytest", dirname, filename)
+}
+
+show_demo_image <- function(stem) {
+  knitr::include_graphics(demo_path(stem, "png"))
+}
+
+show_test_image <- function(test, step) {
+  knitr::include_graphics(test_path(test, step))
+}
+
+show_download <- function(stem, desc, ext = "xlsx") {
+  shiny::tagList("Make sure to also download the corresponding readout files:", shiny::tags$a(
+    href = demo_path(stem, ext, web = TRUE), target = "_blank", desc
+  ), shiny::tags$br())
+}
+
+show_instructions <- function(stem) {
+  xlsx_file <- demo_path(stem, "xlsx")
+
+  kableExtra::kable_styling(
+    kableExtra::kbl(readxl::read_xlsx(xlsx_file, sheet = 2)),
+    bootstrap_options = "striped",
+    full_width = FALSE,
+    position = "left",
+  )
+}
+
+show_data <- function(stem) {
+  xlsx_file <- demo_path(stem, "xlsx")
+
+  DT::datatable(
+    readxl::read_xlsx(xlsx_file),
+    rownames = FALSE,
+    extensions = "Buttons",
+    options = list(
+      title = NULL,
+      dom = "Brtip",
+      buttons = list(list(
+        extend = "download",
+        className = basename(xlsx_file)
+      )),
+      lengthMenu = list(
+        c(10, 25, 50, -1),
+        c(10, 25, 50, "All")
+      ),
+      pagingType = "full"
+    ),
+    style = "bootstrap4"
+  )
+}
+```
+
+<script>
+  // See also https://github.com/yajra/laravel-datatables/issues/964
+  $.fn.dataTable.ext.buttons.download = {
+    text: function (dt) { return 'Download'; },
+    action: function (e, dt, button, config) {
+      var classes = button[0].classList 
+      var base_url = 'https://itrex.kitz-heidelberg.de/iTReX/'
+      window.location = base_url + 'demo/' + classes[classes.length - 1]
+    },
+  };
+</script>
+
+# iTReX: interactive Therapy Response eXploration
+
+**<a href="https://itrex.kitz-heidelberg.de/" target="_blank">iTReX</a>** is an interactive analysis and visualization web application for mono- and combination therapy data. This user manual provides examples and step-by-step instructions to demonstrate screening data exploration and analysis.
+
+iTReX modules are organized by tabs as shown below:
+
+```{r, fig.width=14, fig.height=5}
+show_demo_image("Navigation")
+```
+<br>
+
+1. **Home:** the tab for uploading input files and setting analysis parameters.
+<br>
+
+2. **QCN-, MRA-, CRA-mod:** the three main modules, Quality Control and Normalization (QCN), Monotherapy Response Analysis (MRA), and Combination therapy Response Analysis (CRA) allow the exploration of therapy response data.
+
+3. **HitNet- and Omics-mod:** two additional modules that allow generation and exploration of sample-specific drug-drug interaction networks.
+
+4. **About and FAQs:** tabs providing further information about the iTReX app, terms of use, the developers and frequently asked questions (FAQs).
+
+<br>
+[Proceed to <a href="#data-preparation-and-general-definitions">Data Preparation and General Definitions</a>]{style="float:right"}
+<br>
+
+# Data Preparation and General Definitions
+
+## Data Preparation
+
+Input data must be provided in the form of a plate layout, defining therapies and concentrations for each plate well, and readout value. This section explains data formats and offers example data that can be used as templates. If any terms are unclear, you will find a list of *general definitions* at the end of this section.
+
+### Layouts
+
+Each experiment is described by one **layout file**, which defines the layout of the plate(s) used for screening one sample. Layout files are worksheets in long-table format that must include the following columns.
+
+Note that for a single sample, **Sample** and **Readout** columns can be filled in the layout file: for cohort analyses, they must be provided separately in the form of **matrix files**.
+
+```{r}
+show_instructions("MRA_Layout")
+```
+
+### Readouts
+Readouts must be prepared as `.xlsx` spreadsheets or `.txt` text files, using one file per plate. Import from `.txt` files support many, but not all available raw-data formats -- if in doubt, use the provided templates. Readouts from experiments with multiple plates per sample, or multiple samples (/cohort/), must be combined in one `.zip` archive.
+
+Please name your spreadsheets or text files according to the following scheme: `SampleID_PlateNumber`, avoiding underscores in the plate identifiers `SampleID` (the underscore should only be used to separate the `SampleID` and `PlateNumber`).
+
+<br>
+```{r, fig.width=1, fig.height=1, out.width="50px", out.extra='style="float:left; padding:10px"'}
+show_demo_image("Info-Button")
+```
+
+Detailed instructions about all possible data uploads are also available in the iTReX app via **dropdown buttons** near each browse button.
+<br>
+<br>
+
+**Demonstration datasets** are available below to explore the iTReX app using each of the following screen types:
+
+#### 1. Monotherapy, single sample (single file: Layout + Readouts)
+```{r}
+show_data("MRA_LayoutAndReadouts_BT-40_ST04")
+```
+
+#### 2. Combination therapy, single sample, separate matrix files:
+
+- **Layout**
+```{r}
+show_data("CRA_Layout")
+```
+
+- **Readouts**
+```{r}
+show_download("CRA_1ReadoutXlsx_INF-R-1632", ext = "zip", "Demo Combination therapy Readouts")
+```
+<br>
+
+#### 3. Monotherapy, multiple samples (cohort), separate matrix files:
+
+- **Layout**
+```{r}
+show_data("MRA_Layout")
+```
+
+- **Readouts**
+```{r}  
+show_download("MRA_2ReadoutsXlsx", ext = "zip", "Demo Cohort Readouts")
+```
+<br>
+
+[Proceed to <a href="#therapy-response-uploads-and-analysis-parameters-home">Therapy Response Uploads and Analysis Parameters</a>]{style="float:right"}
+
+## General Definitions
+
+- **Therapy**: Any kind of chemical or physical perturbation assessed in a cell-based in vitro setting (i.e., low to high-throughput drug screening and profiling using approved or investigation drugs or chemical probes in specific concentrations/therapy units; radiation therapy applied in gray doses in vitro; etc.).
+
+- **Monotherapy**: Assessing the effect of a single agents (drug; radiation; chemical prob) in a concentration/dose range. This includes assessing multiple single agents in a multi-well setting. (i.e. test of a drug library of hundreds of agents).
+
+- **Combination therapy**: Combination of at least 2 therapy partners (i.e drug A + drug B, drug + radiation, etc.) Note, that currently combination therapy allows to analyze the combination of 2 therapy partners only in which one partner is applied in a single, fixed concentration combined with concentration series of therapy partner 2. Analysis modules for the combination of more than 2 partners and multiple concentration matrix screens are subject of current developments.
+
+- **Sample**: Any sample that is subject of your therapy tests: i.e. cell line, patient-derived xenografts, primary tumor or tissue sample.
+
+- **Healthy controls**: Any sample(s) that you would like to use as a reference to compare to and for which you have tested the therapy/therapies. You can use this to estimate the selectivity of the therapy, i.e. on a tumor sample vs a healthy control sample or selectivity of the therapy on a specific entity/cell line etc by calculating a selective drug sensitivity score (sDSS; Yadav et al. <a href="https://doi.org/10.1038/srep05193" target="_blank">2014</a>). You must run the analysis of the control reference sample before running the analysis of your sample of interest.
+
+- **Positive controls (pos)**: Any toxic compound that kills most of the cells. This is used as a background signal control for normalization and serves as general cell death control. Example: Benzethonium Chloride.
+
+-	**Negative controls (neg)**: Any solvent that should not have an effect on the cells, ideally this is the solvent that is used for dilution of the therapeutic agents. Example: DMSO.
+
+-	**Therapy controls (TRC)**: Any therapy or compound that you would like to use as a control to assess the quality of the dose response curve and specific cell death response. Example: Staurosporine (STS).
+
+-	**A~min~**: Minimum activity threshold of the therapy as used by Yadav et al. (<a href="https://doi.org/10.1038/srep05193" target="_blank">2014</a>).
+
+- **Cohort**: x number of samples screened with the same layout and therapies. Multiple samples can be uploaded at once using a zip file and explored as a “cohort”  in the MRA and CRA modules. Cohort results can be visualized as heatmap for comparison of sample sensitivities within one cohort. 
+
+# 1. Therapy Response Uploads and Analysis Parameters: Home
+
+```{r}
+show_test_image("tabs_home", "00_Home")
+```
+<br>
+
+**1-** Select the number of samples to be analyzed: **"Single Sample"** or **"Cohort"**.
+
+**2-** If the analysis includes a single sample only, the layout and readout files can be uploaded as a **"Single File"** (Layout Table including Readouts) or as **"Separate Files"** (Layout Table and Readout Matrices).
+<br>
+iTRex is able to process data from any plate layout format (e.g; 96, 384, 1536 .. etc, well plates).
+
+**3-** Upload the layout table and/or readout matrices as indicated in the data preparation section of this user manual.
+
+**4-** If a healthy control reference is available, please check the **"Upload Healthy Controls"** box.
+
+**5-** Select the type of readout measures of the screen: **"Cell Viability"** or **"Cell Death"**.
+
+**6-** Select the preferred DSS activity threshold (A~min~) setting.
+**"Variable 10% of Imax"** is the default recommended setting of iTReX. There are multiple alternative options provided such as:
+<br>
+
+**"Constant 10% Inhibition"**: This sets the A~min~ to a fixed value of 10% as implemented in <a href="https://doi.org/10.1038/srep05193" target="_blank">(Yadav et al., 2014)</a>.
+<br>
+
+**"Constant 0% Inhibition"**: This sets the A~min~ to a fixed value of 0%.
+<br>
+
+**"Flexible threshold"**: By setting this option a slider bar will appear, where you can set any other value according to the biological hypothesis / interest of the project.
+<br>
+
+**6- Start of Analysis:**
+<br>
+The analysis can be performed in **"One-Click"** or **"Stepwise"**.
+
+- **"One-Click"**: Runs the QCN, MRA modules and the CRA module in case a combotherapy is uploaded in one click. A progress bar indicates the progress of the analysis. The progress bar will disappear and a DONE message will appear as soon as the analysis is completed. After the analysis is completed, head to the "QCN-mod" tab to explore the quality control output, the "MRA-mod" tab to explore the monotherapy analysis output and the "CRA-mod" for combotherapy exploration if present. A results exploration section of the three modules is available in section 2 of this user manual.
+
+- **"Stepwise"**: Analyzes the therapy response step-by-step. Head to the "QCN-mod" tab first to perform the quality control analysis. The "QCN-mod" has to run before the "MRA-mod". It is recommended to check the quality of your raw data first before moving to any further output. After running the "QCN-mod", head to the "MRA-mod" and click "run analysis" to run the module, similarly this applies to the "CRA-mod" in case a combotherapy is uploaded. The MRA-mod must run before the CRA-mod in case a combotherapy is analyzed using a stepwise analysis.
+
+After running iTReX QCN and MRA modules using the "One-Click" or "Stepwise" analysis type, the "HitNet" and/or "Omics" modules can be used to visualize sample specific networks.
+
+# 2. Therapy Response Results Exploration: QCN-, MRA-, and CRA-mod
+
+## {.tabset .tabset-pills}
+
+### QCN-mod
+
+- **Screen Summary**
+
+The quality control summary table includes the mean, standard deviation, the coefficient of variation for each measured well type, the Z-prime and robust Z-prime per plate and the mean of each score respectively of the full screen.
+
+Screen Z-prime higher than 0.5 are considered to be of very good quality, while a Z-prime less than 0 is considered to be of poor quality.
+
+```{r}
+show_test_image("mono_sample_BT-40_qc", "01_ScreenSummary")
+```
+
+- **Raw Count Distribution**
+
+This plot is generated to check the mean raw counts and intensity read of the plate reader for each plate.
+
+```{r}
+show_test_image("mono_sample_BT-40_qc", "02_RawCountDistribution")
+```
+
+- **Plate Layout**
+
+The plate layout plot visualizes the position of each well type on the plate, where the visualized layout must match the screened and uploaded layout.
+
+```{r}
+show_test_image("mono_sample_BT-40_qc", "03_PlateLayout")
+```
+
+- **Well Distribution**
+
+The raw count distribution per well is visualized for each plate, where the negative and positive controls uploaded should show a distinctive difference to ensure a high quality screen normalization.
+
+```{r}
+show_test_image("mono_sample_BT-40_qc", "04_WellDistribution")
+```
+
+- **Replicate Scatter Distribution**
+
+A correlation plot for duplicates is visualized if replicates of therapies (i.e duplicates of each drug and concentration) are present. A correlation coefficient (R2) higher than 0.7 indicates a high quality control screen.
+
+```{r}
+show_test_image("mono_sample_BT-40_qc", "05_ReplicateScatterDistribution")
+```
+
+- **Controls QC**
+
+The viability of positive and negative controls are visualized at there relevant well positions. All positive control wells should show low viability (blue), while negative control wells must indicate a greater viability value with the continuous color scale (white-red) for a high quality screen.
+
+```{r}
+show_test_image("mono_sample_BT-40_qc", "06_ControlsQC")
+```
+
+- **Viability Heatmap**
+
+Normalized and unNormalized viability heatmaps to visualize the overall data per well.
+
+```{r}
+show_test_image("mono_sample_BT-40_qc", "07_ViabilityHeatmap")
+```
+
+- **Therapy Control Response**
+
+Fitted dose response curve of the therapy controls uploaded (if any). This curve acts as a positive control to the fitting of a positive treatment and indicates the quality of the screen post normalization.
+
+```{r}
+show_test_image("mono_sample_BT-40_qc", "08_TherapyControlResponse")
+```
+
+### MRA-mod
+
+**Sample Screen**: the sample screen tabset visualizes the MRA-mod output of one sample. In case a cohort analysis is uploaded, please select the sample of interest to be visualized.
+
+- **MRA Therapy Parameters**
+
+The MRA tabulated output, where the columns indicate the following result parameters:
+
+```{r}
+show_instructions("MRA_TherapyParameters_BT-40_ST08")
+```
+
+```{r}
+show_test_image("mono_sample_BT-40_mra", "01_MRATherapyParameters")
+```
+
+- **iHeatmap**
+
+An interactive heatmap ranking all analyzed therapies according to the DSS~asym~ metric descendingly. The dose response curves can be visualized upon hovering on a specific therapy.
+
+```{r}
+show_test_image("mono_sample_BT-40_mra", "02_iHeatmap")
+```
+
+- **MRA DSS~asym~ Waterfall Plots**
+
+Waterfall plot indicating the rank of the sensitivities of the therapies according to the DSS~asym~ metric. This is followed by the goodness of fit (GOF) scatter plot indicating the relation between the DSS~asym~ and the GOF, where each point indicates an analyzed treatment. Ideally top hit sensitivity treatments should have a high GOF. 
+The second waterfall plot visualizes the treatment ranking based on the DSS~asym,adj~ which takes the GOF into consideration within the final score.
+
+```{r}
+show_test_image("mono_sample_BT-40_mra", "03_MRADSS_asymWaterfallPlots")
+```
+
+- **sDSS~asym~ Waterfall Plots**
+
+Waterfall plot indicating the rank of the sensitivities of the therapies according to the sDSS~asym~ metric. The positive sDSS~asym~ indicates that the treatment has a higher effectivity in the sample than in the reference control (is selectively effective in the sample), while a negative sDSS~asym~ indicates a higher effect of treatment in the control sample, indicating general toxicity of the treatment. The plot is followed by the goodness of fit (GOF) scatter plot indicating the relation between the sDSS~asym~ and the GOF scatter plot. The second waterfall plot visualizes the treatment ranking based on the sDSS~asym,adj~ which takes the GOF into consideration within the final score.
+
+```{r}
+show_test_image("mono_sample_BT-40_mra", "04_sDSS_asymWaterfallPlots")
+```
+
+### CRA-mod
+
+**Sample Screen**: the sample screen tabset visualizes the CRA-mod output of one sample. In case a cohort analysis is uploaded, please select the sample of interest to be visualized.
+
+- **CRA Therapy Parameters**
+
+The CRA tabulated output is similar to the MRA therapy parameters output, however including the combination therapies analyzed in the screen rather than monotherapies. The output includes the following column details:
+
+```{r}
+show_instructions("CRA_TherapyParameters_INF-R-1632_ST09")
+```
+
+```{r}
+show_test_image("combo_sample-sep_xra_step", "01_CRATherapyParameters")
+```
+
+- **CRA DSS~asym~ Waterfall Plot**
+
+The combination therapies are visualized in DSS~asym~ waterfall plots and adjusted to the GOF similar to the functionality of the MRA DSS~asym~ waterfall plot for monotherpaies
+
+```{r}
+show_test_image("combo_sample-sep_xra_step", "02_CRADSS_asymWaterfallPlot")
+```
+
+- **CRA dcDSS~asym~ & dPI Table**
+
+The CRA tabulated output includes the dPI and dcDSS~asym~ as follows:
+
+```{r}
+show_instructions("CRA_TherapyParameters_INF-R-1632_ST09")
+```
+
+```{r}
+show_test_image("combo_sample-sep_xra_step", "03_CRAdcDSS_asym")
+```
+
+- **dcDSS~asym~ Waterfall Plot & dPI Matrix**
+
+A waterfall plot revealing positive dcDSS~asym~ (blue) and negative dcDSS~asym~ metric (red). Positive values indicate a possible enhanced effect of the combotherapy over the monotherapy, while the negative values may explain a possible antagonism as the monotherapy DSS~asym~ exceeds the combotherapy DSS~asym~. In rare cases the synergy and antagonism curve shift may be influenced by the curve fitting with a false interpretation. Thus the dPI values are essential to confirm the results of the dcDSS~asym~ metric. A positive dcDSS~asym~ and positive dPI values indicate a synergistic effect, while a negative dcDSS~asym~ confirmed by negative dPI values indicate an antagonistic effect. dcDSS~asym~ and dPI values near zero (0 +/- 2) explain a possible additive effect.
+The dPI matrix is visualized for positive dcDSS~asym~ values (right) and is visualized for all combotherapies included in the analysis (left).
+
+```{r}
+show_test_image("combo_sample-sep_xra_step", "04_dcDSS_asymWaterfallPlot")
+```
+
+### Cohort Screen
+
+A cohort heatmap can be visualized for both MRA and CRA outputs using the MRA-mod and CRA-mod cohort screen tabsets respectively. 
+
+Heatmaps are generated for the whole uploaded cohort as demonstrated below:
+
+```{r}
+show_test_image("mono_cohort_heatmap", "01_Heatmap")
+```
+
+The clustering distance can be adjusted to the method of interest. Moreover, checkboxes are available to visualize the sDSS~asym~ heatmap if the healthy control reference is used, the therapy standard deviation (SDs) and plate quality control zprime.
+
+The plot width and height can also be adjusted using the slider bar.
+
+# 3. Sample Specific Networks: HitNet- and Omics-mod
+
+## {.tabset .tabset-pills}
+
+### HitNet-mod
+
+The HitNet module visualizes Drug-Drug interaction networks without mapping Omics features. If you have molecular features for your sample you can directly use the Omics module to visualize the network.
+
+To visualize the HitNet output follow the steps indicated below:
+
+**1- Select the sample of interest.**
+<br>
+If you have one sample only, the name of the sample will be present as the default selected sample.
+
+**2- Select your preferred form of drug target annotation.**
+<br>
+You can upload your Drug-Target annotation table as a .xlsx spreadsheet or use annotations from DrugBank. Please note that you have to sign up for DrugBank to access the files - you can follow the link specified in the app in this case.
+
+Below is an example sample annotation file prepared for demonstration post running the Monotherarpy demo dataset. Select **Upload Table** and upload the example sheet. The Drug names must match the layout drug names uploaded in the iTReX "Home" tab.
+
+```{r}
+show_data("Targets_ST03-min")
+```
+
+The column names of the uploaded spreadsheet must be identical to the demo spreadsheet column names as shown below.
+```{r}
+show_instructions("Targets_ST03-min")
+```
+
+**3- Select the number of top hit drugs to be visualized.**
+<br>
+Ideally you should select this value based on the results of the MRA module, aiming to include top hit drugs only.
+
+For demonstration you can select a number of **10** drugs.
+
+**4- Set the screen type to: "Monotherapy" and click "Create Network".**
+<br>
+```{r}
+show_test_image("mono_sample_BT-40_hitnet-omics_custom", "02_HitNet")
+```
+
+### Omics-mod
+
+The Omics module allows to visualize drug target interaction networks while highlighting molecular (Omics) features of the analyzed sample.
+
+In order to visualize the network follow the steps indicated below:
+
+**1- Select the sample of interest.**
+<br>
+If you have one sample only, the name of the sample will be present as the default selected sample.
+
+**2- Upload the Omics table including the molecular features of the specified sample.**
+<br>
+Gene symbols must be specified according to HUGO gene nomenclature. An example .xlsx is available below to demonstrate the matching monotherapy demo sample. The uploaded table must include the molecular features of the sample with at least one of the following molecular feature types: mutations, expression, fusion.
+
+The column names of the uploaded spreadsheet must be identical to the demo spreadsheet column names.
+
+```{r}
+show_data("Omics_BT-40_ST11")
+```
+
+**3- Select your preferred form of drug target annotation.**
+<br>
+You can upload your Drug-Target annotation table as a .xlsx spreadsheet or use annotations from DrugBank. Please note that you have to sign up for DrugBank to access the files - you can follow the link specified in the app in this case.
+
+Below is an example sample annotation file prepared for demonstration post running the Monotherarpy demo dataset. Select **Upload Table** and upload the example sheet. The Drug names must match the layout drug names uploaded in the iTReX "Home" tab.
+
+```{r}
+show_data("Targets_ST03-min")
+```
+
+The column names of the uploaded spreadsheet must be identical to the demo spreadsheet column names as shown below.
+```{r}
+show_instructions("Targets_ST03-min")
+```
+
+**4- Select the number of top hit drugs to be visualized.**
+<br>
+Ideally you should select this value based on the results of the MRA module, aiming to include top hit drugs only.
+
+For demonstration you can select a threshold of **10**
+
+**5- Set the screen type to: "Monotherapy" and click "Create Network".**
+<br>
+```{r}
+show_test_image("mono_sample_BT-40_hitnet-omics_custom", "03_Omics")
+```

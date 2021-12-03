@@ -1,0 +1,89 @@
+---
+title: "Waterfall_plots"
+output: html_document
+---
+
+## `r PID`
+
+### sDSS_asym
+```{r}
+MRA_sdss_list <- list()
+
+data_n <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_mono.xlsx")))
+
+combo_data <- data_n[grepl("combo_", data_n$Drug.Name), ]
+if (nrow(combo_data) == 0) {
+  mono_data <- data_n
+} else {
+  mono_data <- data_n[!grepl("combo_", data_n$Drug.Name), ]
+}
+
+dData <- mono_data[order(-mono_data$sDSS_asym), ]
+dData$sDSS_asym <- as.numeric(dData$sDSS_asym)
+dData$Metric <- ifelse(dData$sDSS_asym > 0, "sDSS_asym > 0", "sDSS_asym < 0")
+
+d <- ggplot(dData, aes(
+  x = reorder(.data$Drug.Name, -.data$sDSS_asym),
+  y = .data$sDSS_asym, width = 0.75, fill = .data$Metric
+)) +
+  geom_bar(stat = "identity", lwd = 0.5, na.rm = TRUE) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_manual(values = c("darkred", "dodgerblue4")) +
+  labs(x = "Drug") +
+  labs(y = "sDSS_asym")
+
+
+plotly::ggplotly(d, width = 1000, height = 500)
+
+MRA_sdss_list[[length(MRA_sdss_list) + 1]] <- d
+```
+
+
+### GOF mapping Scatter plot 
+
+```{r}
+data <- mono_data[, c("Drug.Name", "sDSS_asym", "analysis", "GOF")]
+data$GOF <- as.numeric(data$GOF)
+data$sDSS_asym <- as.numeric(data$sDSS_asym)
+gscatter2 <- ggplot(data, aes(x = .data$sDSS_asym, y = .data$GOF, label = .data$Drug.Name)) +
+  geom_point(color = "steelblue4", size = 2) +
+  labs(x = "sDSS_asym") +
+  labs(y = "GOF") +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.1)) +
+  scale_x_continuous(breaks = seq(-30, 50, by = 5)) +
+  theme_gray()
+
+plotly::ggplotly(gscatter2, width = 500, height = 500)
+MRA_sdss_list[[length(MRA_sdss_list) + 1]] <- gscatter2
+```
+
+
+## GOF based ranking
+```{r}
+data <- mono_data[, c("Drug.Name", "sDSS_asym", "sDSS_asym_adj", "analysis", "GOF")]
+data$GOF <- as.numeric(data$GOF)
+data$sDSS_asym <- as.numeric(data$sDSS_asym)
+data$sDSS_asym_adj <- as.numeric(data$sDSS_asym_adj)
+data$Metric <- ifelse(data$sDSS_asym > 0, "sDSS_asym > 0", "sDSS_asym < 0")
+
+data <- data[order(-data$sDSS_asym_adj), ]
+d <- ggplot(data, aes(
+  x = reorder(.data$Drug.Name, -.data$sDSS_asym_adj), y = .data$sDSS_asym, width = 0.75,
+  fill = Metric
+)) +
+  geom_bar(stat = "identity", lwd = 0.5, na.rm = TRUE) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_manual(values = c("darkred", "dodgerblue4")) +
+  labs(x = "Drug, ranked based on sDSS_asym,adj") +
+  labs(y = "sDSS_asym")
+
+plotly::ggplotly(d, width = 1000, height = 500)
+d2 <- d
+MRA_sdss_list[[length(MRA_sdss_list) + 1]] <- d2
+
+names(MRA_sdss_list) <- c("d", "gscatter2", "d2")
+saveRDS(MRA_sdss_list, file.path(output_dir, "pre_process", "MRA_sdss_list.rds"))
+```
+

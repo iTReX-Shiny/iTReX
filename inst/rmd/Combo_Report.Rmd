@@ -1,0 +1,98 @@
+---
+title: "Combo_Report"
+output: html_document
+---
+## `r PID`
+
+```{r, fig.dim=c(13, 6)}
+combo <- Synergy_df
+combo$Metric <- ifelse(combo$dcDSS_asym > 0, "dcDSS_asym > 0", "dcDSS_asym < 0")
+CRA_report_list <- list()
+
+d <- ggplot(combo, aes(x = reorder(.data$Drug.Name, -.data$dcDSS_asym), y = .data$dcDSS_asym, width = 0.75, fill = .data$Metric)) +
+  geom_bar(stat = "identity", lwd = 0.5, na.rm = TRUE, ) +
+  labs(x = "Drug") +
+  labs(y = "dcDSS_asym") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_manual(values = c("darkred", "dodgerblue4"))
+plotly::ggplotly(d)
+CRA_report_list[[length(CRA_report_list) + 1]] <- d
+```
+
+
+```{r, fig.align='right'}
+
+long2 <- Synergy_df[, 1:6]
+long2 <- long2 %>% tidyr::gather("Dose", "dPI", .data$dPI1:.data$dPI5)
+long2 <- long2[complete.cases(long2), ]
+
+h2 <- ggplot(long2, aes(.data$Dose, reorder(.data$Drug.Name, .data$dPI), label1 = .data$Dose)) +
+  geom_tile(aes(fill = .data$dPI)) +
+  geom_text(aes(label = round(.data$dPI, 2)), size = 3) +
+  scale_fill_gradient2(
+    low = "darkred",
+    mid = "gray100",
+    high = "steelblue4",
+    midpoint = 0
+  ) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.background = element_rect(fill = "white"),
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1, size = 8, face = "bold"),
+    plot.title = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 8, face = "bold")
+  ) +
+  ggtitle("differential Percentage Inhibition") +
+  theme(legend.title = element_text(face = "bold", size = 8)) +
+  scale_x_discrete(name = "") +
+  scale_y_discrete(name = "")
+
+plotly::ggplotly(h2, height = 1200, width = 600)
+
+CRA_report_list[[length(CRA_report_list) + 1]] <- h2
+```
+
+
+```{r, fig.align='right'}
+Synergy_h <- Synergy_df[Synergy_df$dcDSS_asym > 0, ]
+long2 <- Synergy_h[, 1:6]
+long2 <- long2 %>% tidyr::gather("Dose", "dPI", .data$dPI1:.data$dPI5)
+long2 <- long2[complete.cases(long2), ]
+
+h2 <- ggplot(long2, aes(.data$Dose, reorder(.data$Drug.Name, .data$dPI), label1 = .data$Dose)) + # x and y axes => Var1 and Var2
+  geom_tile(aes(fill = .data$dPI)) + # background colors are mapped according to the Readout column
+  geom_text(aes(label = round(.data$dPI, 2)), size = 3) + # write the values
+
+  scale_fill_gradient2(
+    low = "darkred",
+    mid = "gray100",
+    high = "steelblue4",
+    midpoint = 0
+  ) + # determine the color
+
+  theme(
+    panel.grid.major.x = element_blank(), # no gridlines
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.background = element_rect(fill = "white"),
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1, size = 8, face = "bold"),
+    plot.title = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 8, face = "bold")
+  ) +
+  ggtitle("differential Percentage Inhibition") +
+  theme(legend.title = element_text(face = "bold", size = 8)) +
+  scale_x_discrete(name = "") +
+  scale_y_discrete(name = "")
+
+
+plotly::ggplotly(h2, height = 700, width = 600)
+CRA_report_list[[length(CRA_report_list) + 1]] <- h2
+
+names(CRA_report_list) <- c("d", "dPI", "dPI_sh")
+saveRDS(CRA_report_list, file.path(output_dir, "pre_process", "CRA_report_list.rds"))
+```

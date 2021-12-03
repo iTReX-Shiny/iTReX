@@ -1,0 +1,15 @@
+---
+title: "iHeatmap"
+
+output: html_document
+---
+## `r PID`
+
+```{r}
+t <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_mono.xlsx")))
+t$DSS_asym <- as.numeric(t$DSS_asym)
+t <- data.table::as.data.table(t)
+ordered <- t[order(DSS_asym, -Drug.Name, na.last = TRUE), ]
+
+waterfall_with_hover_drcs(output_dir, ordered)
+```

@@ -1,0 +1,129 @@
+---
+title: "Waterfall_plots"
+
+output: html_document
+---
+## `r PID`
+
+### DSS_asym
+```{r}
+MRA_dss_list <- list()
+data_n <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_mono.xlsx")))
+
+combo_data <- data_n[grepl("combo_", data_n$Drug.Name), ]
+if (nrow(combo_data) == 0) {
+  mono_data <- data_n
+} else {
+  mono_data <- data_n[!grepl("combo_", data_n$Drug.Name), ]
+}
+
+mono_data$DSS_asym <- as.numeric(mono_data$DSS_asym)
+mono_data <- mono_data[order(-mono_data$DSS_asym), ]
+data <- mono_data
+pn <- ggplot(data, aes(x = reorder(.data$Drug.Name, -.data$DSS_asym), y = .data$DSS_asym, width = 0.75)) +
+  geom_bar(stat = "identity", color = "#C96307", lwd = 0.5, fill = "#C96307", na.rm = TRUE) +
+  labs(x = "Drug") +
+  labs(y = "DSS_asym") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
+
+plotly::ggplotly(pn, width = 1000, height = 500)
+
+MRA_dss_list[[length(MRA_dss_list) + 1]] <- pn
+```
+
+```{r}
+if (nrow(combo_data) >= 1) {
+  combo_data$DSS_asym <- as.numeric(combo_data$DSS_asym)
+  combo_data <- combo_data[order(-combo_data$DSS_asym), ]
+  data <- combo_data
+  pn <- ggplot(data, aes(x = reorder(.data$Drug.Name, -.data$DSS_asym), y = .data$DSS_asym, width = 0.75)) +
+    geom_bar(stat = "identity", color = "#C96307", lwd = 0.5, fill = "#C96307", na.rm = TRUE) +
+    labs(x = "combo_Drug") +
+    labs(y = "combo_DSS_asym") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
+
+  plotly::ggplotly(pn, width = 1000, height = 500)
+}
+```
+
+
+### GOF mapping Scatter plot 
+
+```{r}
+data <- mono_data[, c("Drug.Name", "DSS_asym", "analysis", "GOF")]
+data$GOF <- as.numeric(data$GOF)
+data$DSS_asym <- as.numeric(data$DSS_asym)
+gscatter <- ggplot(data, aes(x = .data$DSS_asym, y = .data$GOF, label = .data$Drug.Name)) +
+  geom_point(color = "steelblue4", size = 2) +
+  labs(x = "DSS_asym") +
+  labs(y = "GOF") +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.1)) +
+  scale_x_continuous(breaks = seq(0, 70, by = 5)) +
+  theme_gray()
+
+plotly::ggplotly(gscatter, width = 600, height = 500)
+
+MRA_dss_list[[length(MRA_dss_list) + 1]] <- gscatter
+```
+
+
+```{r}
+if (nrow(combo_data) >= 1) {
+  data <- combo_data[, c("Drug.Name", "DSS_asym", "analysis", "GOF")]
+  data$GOF <- as.numeric(data$GOF)
+  data$DSS_asym <- as.numeric(data$DSS_asym)
+  gscatter <- ggplot(data, aes(x = .data$DSS_asym, y = .data$GOF, label = .data$Drug.Name)) +
+    geom_point(color = "steelblue4", size = 2) +
+    labs(x = "combo_DSS_asym") +
+    labs(y = "GOF") +
+    scale_y_continuous(breaks = seq(0, 1, by = 0.1)) +
+    scale_x_continuous(breaks = seq(0, 70, by = 5)) +
+    theme_gray()
+
+  plotly::ggplotly(gscatter)
+}
+```
+
+## GOF based ranking
+```{r}
+data <- mono_data[, c("Drug.Name", "DSS_asym", "DSS_asym_adj", "analysis", "GOF")]
+data$DSS_asym <- as.numeric(data$DSS_asym)
+data$GOF <- as.numeric(data$GOF)
+data$DSS_asym_adj <- as.numeric(data$DSS_asym_adj)
+
+data <- data[order(-data$DSS_asym_adj), ]
+hit_rank <- ggplot(data, aes(x = reorder(.data$Drug.Name, -.data$DSS_asym_adj), y = .data$DSS_asym, width = 0.75)) +
+  geom_bar(stat = "identity", color = "#C96307", lwd = 0.5, fill = "#C96307", na.rm = TRUE) +
+  labs(x = "Drug, ranked based on DSS_asym,adj") +
+  labs(y = "DSS_asym") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
+
+plotly::ggplotly(hit_rank, width = 1000, height = 500)
+
+MRA_dss_list[[length(MRA_dss_list) + 1]] <- hit_rank
+
+names(MRA_dss_list) <- c("pn", "gscatter", "hit_rank")
+saveRDS(MRA_dss_list, file.path(output_dir, "pre_process", "MRA_dss_list.rds"))
+```
+
+```{r}
+if (nrow(combo_data) >= 1) {
+  data <- combo_data[, c("Drug.Name", "DSS_asym", "DSS_asym_adj", "analysis", "GOF")]
+  data$DSS_asym <- as.numeric(data$DSS_asym)
+  data$GOF <- as.numeric(data$GOF)
+  data$DSS_asym_adj <- as.numeric(data$DSS_asym_adj)
+
+  data <- data[order(-data$DSS_asym_adj), ]
+  hit_rank <- ggplot(data, aes(x = reorder(.data$Drug.Name, -.data$DSS_asym_adj), y = .data$DSS_asym, width = 0.75)) +
+    geom_bar(stat = "identity", color = "#C96307", lwd = 0.5, fill = "#C96307", na.rm = TRUE) +
+    labs(x = "combo_Drug, ranked based on DSS_asym,adj") +
+    labs(y = "combo_DSS_asym") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
+
+  plotly::ggplotly(hit_rank, width = 1000, height = 500)
+}
+```

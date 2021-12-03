@@ -1,0 +1,69 @@
+---
+title: "Waterfall_plots"
+output: html_document
+---
+## `r PID`
+
+### DSS_asym
+```{r}
+CRA_dss_list <- list()
+data_n <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_combo.xlsx")))
+data_n$DSS_asym <- as.numeric(data_n$DSS_asym)
+data_n <- data_n[order(-data_n$DSS_asym), ]
+data <- data_n
+pn <- ggplot(data, aes(
+  x = reorder(.data$Drug.Name, -.data$DSS_asym),
+  y = .data$DSS_asym, width = 0.75
+)) +
+  geom_bar(
+    stat = "identity", color = "#C96307",
+    lwd = 0.5, fill = "#C96307", na.rm = TRUE
+  ) +
+  labs(x = "Drug") +
+  labs(y = "DSS_asym") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
+
+plotly::ggplotly(pn, width = 1000, height = 500)
+CRA_dss_list[[length(CRA_dss_list) + 1]] <- pn
+```
+
+
+### GOF mapping Scatter plot 
+```{r}
+data <- data_n[, c("Drug.Name", "DSS_asym", "analysis", "GOF")]
+data$GOF <- as.numeric(data$GOF)
+data$DSS_asym <- as.numeric(data$DSS_asym)
+gscatter <- ggplot(data, aes(x = .data$DSS_asym, y = .data$GOF, label = .data$Drug.Name)) +
+  geom_point(color = "steelblue4", size = 2) +
+  labs(x = "DSS_asym") +
+  labs(y = "GOF") +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.1)) +
+  scale_x_continuous(breaks = seq(0, 70, by = 5)) +
+  theme_gray()
+
+plotly::ggplotly(gscatter, width = 600, height = 500)
+CRA_dss_list[[length(CRA_dss_list) + 1]] <- gscatter
+```
+
+
+## GOF based ranking
+```{r}
+data <- data_n[, c("Drug.Name", "DSS_asym", "analysis", "GOF")]
+data$DSS_asym <- as.numeric(data$DSS_asym)
+data$GOF <- as.numeric(data$GOF)
+data$Hit_rank <- data$DSS_asym * data$GOF
+
+data <- data[order(-data$Hit_rank), ]
+hit_rank <- ggplot(data, aes(x = reorder(.data$Drug.Name, -.data$Hit_rank), y = .data$DSS_asym, width = 0.75)) +
+  geom_bar(stat = "identity", color = "#C96307", lwd = 0.5, fill = "#C96307", na.rm = TRUE) +
+  labs(x = "Drug, ranked based on DSS_asym,adj") +
+  labs(y = "DSS_asym") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
+
+plotly::ggplotly(hit_rank, width = 1000, height = 500)
+CRA_dss_list[[length(CRA_dss_list) + 1]] <- hit_rank
+names(CRA_dss_list) <- c("pn", "gscatter", "hit_rank")
+saveRDS(CRA_dss_list, file.path(output_dir, "pre_process", "CRA_dss_list.rds"))
+```

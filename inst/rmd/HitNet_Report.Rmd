@@ -1,0 +1,18 @@
+---
+title: "HitNet_Report"
+output: html_document
+---
+
+```{r, width=700, height=700}
+cat("DSS_asym")
+plot_igraph(network_l)
+```
+
+```{r, width=700, height=700}
+if (is.null(s_network_l)) {
+  cat("sDSS_asym values are not available for this sample")
+} else {
+  cat("sDSS_asym")
+  plot_igraph(s_network_l)
+}
+```

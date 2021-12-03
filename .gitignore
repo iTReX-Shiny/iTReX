@@ -1,0 +1,7 @@
+.RData
+.Rhistory
+.Rproj.user
+*.log
+*.rds
+/doc/
+/Meta/

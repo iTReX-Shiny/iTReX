@@ -1,0 +1,209 @@
+---
+title: "QC report"
+output: html_document
+---
+## `r PID`
+
+### summary
+```{r}
+debug_save(screenData)
+
+screenData <- read.csv(file.path(output_dir, "pre_process", paste0(PID, "_screenData.csv")))
+screenData$Column <- gsub("(?<![0-9])([0-9])(?![0-9])", "0\\1", screenData$Column, perl = TRUE)
+
+combo_data <- screenData[!is.na(screenData$AddOn), ]
+if (nrow(combo_data) == 0) {
+  summary <- QCsummary(screenData = screenData, PID = PID)
+  summary <- summary[, order(colnames(summary))]
+} else {
+  single_data <- screenData[!grepl("combo", screenData$Treatment), ]
+  combo_data <- screenData[grepl("combo", screenData$Treatment), ]
+  summary_mono <- QCsummary(screenData = single_data, PID = PID)
+  summary_mono <- summary_mono[, order(colnames(summary_mono))]
+  summary_combo <- QCsummary(screenData = combo_data, PID = PID)
+  summary_combo <- summary_combo[, order(colnames(summary_combo))]
+}
+
+combo_data <- screenData[!is.na(screenData$AddOn), ]
+if (nrow(combo_data) == 0) {
+  QCN_list <- list(summary)
+  names(QCN_list) <- c("summary")
+  summary <- data.table::as.data.table(QCN_list$summary, keep.rownames = TRUE)
+  openxlsx::write.xlsx(summary, file.path(project_dir, "Heatmap_data", "QC", paste0(PID, "_QC.xlsx")), overwrite = TRUE)
+  knitr::kable(summary, format = "html", table.attr = "class='table'")
+} else {
+  QCN_list <- list(summary_mono, summary_combo)
+  names(QCN_list) <- c("summary_mono", "summary_combo")
+  summary_mono <- data.table::as.data.table(QCN_list$summary_mono, keep.rownames = TRUE)
+  openxlsx::write.xlsx(as.data.frame(summary_mono), file.path(project_dir, "Heatmap_data", "QC", paste0(PID, "_QC.xlsx")), overwrite = TRUE)
+  knitr::kable(summary_mono, format = "html", table.attr = "class='table'")
+}
+```
+
+### raw count distribution
+```{r}
+g1 <- plotRawCountc(screenData, ifLog10 = TRUE)
+g1
+plotlist <- list(g1)
+```
+
+### plate layout
+```{r, fig.dim=c(14, 8)}
+file <- as.data.frame(unique(screenData$Plate))
+screenData2 <- screenData
+screenData2$Plate <- gsub("_combo", "", screenData2$Plate)
+g2 <- platePlotc(screenData = screenData2, plotPlate = "all", plotType = "layout")
+plotlist[[length(plotlist) + 1]] <- g2
+patchwork::wrap_plots(g2) + patchwork::guide_area()
+```
+
+### raw count distribution per wellType
+```{r, fig.dim=c(13, 10)}
+g4 <- plotTypeDistc(screenData, ifLog10 = TRUE)
+plotlist[[length(plotlist) + 1]] <- g4
+patchwork::wrap_plots(g4) + patchwork::guide_area()
+```
+
+### correlation between replicates per plate
+```{r, fig.dim=c(11, 8)}
+if (length(unique(screenData2$Replicate)) == 2) {
+  psc <- plotScatter(screenData = screenData2)
+  psc <- psc[sapply(psc, function(i) nrow(i$data) > 0)]
+
+  plotlist[[length(plotlist) + 1]] <- psc
+  patchwork::wrap_plots(psc) + patchwork::guide_area()
+} else {
+  print("This screen has no replicate treatment, or replicates are not duplicates only")
+  plotlist[[length(plotlist) + 1]] <- list("psc")
+}
+```
+
+
+### Positive and Negative Controls Viability Quality Check
+
+#### Positive Control: BzCl
+```{r, fig.dim=c(10, 7)}
+QApos <- screenData2
+QApos$normVal <- ifelse(QApos$WellType == "pos", QApos$normVal, NA)
+
+g5 <- platePlotControl(screenData = QApos, plotPlate = "all", plotType = "viability")
+plotlist[[length(plotlist) + 1]] <- g5
+patchwork::wrap_plots(g5) + patchwork::guide_area()
+```
+
+#### Negative Control: DMSO
+```{r, fig.dim=c(10, 7)}
+QAneg <- screenData2
+QAneg$normVal <- ifelse(QAneg$WellType == "neg", QAneg$normVal, NA)
+
+g6 <- platePlotControl(screenData = QAneg, plotPlate = "all", plotType = "viability")
+plotlist[[length(plotlist) + 1]] <- g6
+patchwork::wrap_plots(g6) + patchwork::guide_area()
+```
+
+### unnormalized heatmaps for each plate 
+```{r, fig.dim=c(10, 7)}
+g7 <- platePlotControl(screenData = screenData2, plotPlate = "all", plotType = "viability")
+plotlist[[length(plotlist) + 1]] <- g7
+patchwork::wrap_plots(g7) + patchwork::guide_area()
+```
+
+### normalized heatmaps for each plate
+```{r, fig.dim=c(10, 7)}
+g8 <- platePlotControl(screenData = screenData2, plotPlate = "all", plotType = "zscore")
+plotlist[[length(plotlist) + 1]] <- g8
+patchwork::wrap_plots(g8) + patchwork::guide_area()
+```
+
+### Therapy Response Control Curve
+```{r}
+TRc_data <- screenData[screenData$WellType == "TRC", ]
+if (nrow(TRc_data) == 0) {
+  print("There is no therapy response control for this screen")
+  g10 <- ggplot()
+  plotlist[[length(plotlist) + 1]] <- g10
+} else {
+  colnames(TRc_data)[colnames(TRc_data) == "normVal"] <- "viability"
+  colnames(TRc_data)[colnames(TRc_data) == "Concentration"] <- "dose"
+  TRc_data$viability <- TRc_data$viability * 1
+  TRc_data$IC <- 1 - TRc_data$viability
+
+  model <- tryCatch(nplr::nplr(x = TRc_data$dose, y = TRc_data$IC, npars = "all", silent = TRUE), error = function(err) NA)
+  if (is.na(model)) {
+    print("Therapy Response Control failed nplr fitting, this may be indicating a bad QC sample,
+        please check the full QC report for your interpretation")
+    curve <- NA
+    error <- NA
+    IC50 <- NA
+  } else {
+    yline <- as.data.frame(nplr::getYcurve(model))
+    xline <- as.data.frame(nplr::getXcurve(model))
+    xline <- 10^(xline)
+    curve <- cbind(xline, yline)
+    names(curve)[1] <- "dose"
+    names(curve)[2] <- "response"
+    param <- as.data.frame(nplr::getPar(model))
+    max <- max(nplr::getYcurve(model)) * 100
+    min <- min(nplr::getYcurve(model)) * 100
+    #
+    # Placeholder to match content lines in iTReX_mod.R
+    if (param$params.top >= param$params.bottom) {
+      Imax <- param$params.top * 100
+      Imin <- param$params.bottom * 100
+      slope <- param$params.scal
+      Iminr <- max(-10, Imin)
+      Imaxr <- min(110, Imax)
+      halfCEmax <- (Imaxr + Iminr) / 200
+      estimate <- nplr_get_estimates(model, halfCEmax)
+      IC50 <- estimate[1, 3]
+      #
+      # Placeholder to match content lines in iTReX_mod.R
+      #
+      #
+      #
+      #
+    } else {
+      Imax <- param$params.bottom * 100
+      Imin <- param$params.top * 100
+      slope <- param$params.scal * -1
+      Iminr <- max(-10, Imin)
+      Imaxr <- min(110, Imax)
+      halfCEmax <- (Imaxr + Iminr) / 200
+      row <- which.min(abs(curve$response - halfCEmax))
+      IC50 <- curve[row, 1]
+      #
+      # Placeholder to match content lines in iTReX_mod.R
+      #
+      #
+      #
+      #
+    }
+
+    minconc <- min(TRc_data$dose)
+    maxconc <- max(TRc_data$dose)
+    Goodness <- as.data.frame(nplr::getGoodness(model))
+    GOF <- Goodness$gof
+    GOF <- max(0, GOF)
+    error <- (1 - GOF) * 100
+    curve$response <- (curve$response) * 100
+    IC50 <- ifelse(slope < 0, NA, IC50)
+    #
+    # Placeholder to match content lines in iTReX_mod.R
+    #
+    min <- max(-10, min)
+    max <- min(110, max)
+  }
+  # plot curves
+  g10 <- plot.iscreen(
+    drdata = TRc_data, curve = curve, error = error, IC50 = IC50,
+    title = as.character(paste0(unique(TRc_data$Treatment), "_", PID))
+  )
+  plotlist[[length(plotlist) + 1]] <- g10
+}
+
+## plot list name
+names(plotlist) <- c("g1", "g2", "g4", "psc", "g5", "g6", "g7", "g8", "g10")
+# merge list and save
+QCN_list <- c(QCN_list, plotlist)
+saveRDS(QCN_list, file.path(output_dir, "pre_process", "QCN_list.rds"))
+```
