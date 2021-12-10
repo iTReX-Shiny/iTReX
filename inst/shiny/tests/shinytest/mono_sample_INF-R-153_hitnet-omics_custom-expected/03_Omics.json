@@ -11,7 +11,7 @@
     "CRAc_height": 250,
     "CRAc_width": 500,
     "dropdown_cohort": 0,
-    "dropdown_healthy_controls": 0,
+    "dropdown_reference_samples": 0,
     "dropdown_single_sample": 0,
     "dropdownHitNetDrugAnnotation": 0,
     "dropdownHitNetDrugDank": 0,
@@ -29,20 +29,6 @@
       ],
       "size": [
         45691
-      ],
-      "type": [
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      ],
-      "datapath": [
-        "0.xlsx"
-      ]
-    },
-    "healthy_controls_file": {
-      "name": [
-        "iTReX-Demo_Controls_DKFZ_ST10-min.xlsx"
-      ],
-      "size": [
-        12118
       ],
       "type": [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -83,6 +69,20 @@
     "OmicsLicense": true,
     "QC_mod": "Screen Summary",
     "readout_matrices_file": null,
+    "reference_samples_file": {
+      "name": [
+        "iTReX-Demo_Controls_DKFZ_ST10-min.xlsx"
+      ],
+      "size": [
+        12118
+      ],
+      "type": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "datapath": [
+        "0.xlsx"
+      ]
+    },
     "sample": "INF_R_153",
     "sample_CRA": "INF_R_153",
     "sample_MRA": "INF_R_153",
@@ -124,7 +124,7 @@
     },
     "type_of_analysis": "OCA",
     "type_of_readout": "cell_viability",
-    "upload_healthy_controls": true,
+    "upload_reference_samples": true,
     "viewQCreport": 0,
     "vis_CRA": 0,
     "vis_MRA": 0,
@@ -195,7 +195,6 @@
       ]
     },
     "end_oca": "One-Click Analysis is complete.",
-    "healthy_controls_uploaded": true,
     "HitNetplot": {
       "src": "[image data sha1: 98d022045a67924b98e2cacd57f701ccb498bb7d]",
       "width": 700,
@@ -338,6 +337,7 @@
       }
     },
     "readout_matrices_uploaded": false,
+    "reference_samples_uploaded": true,
     "text_hit1": "DSS_asym Net",
     "text_hit2": "sDSS_asym Net",
     "text_omics1": "DSS_asym Net",

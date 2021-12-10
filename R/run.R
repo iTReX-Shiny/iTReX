@@ -48,7 +48,7 @@ install_hash <- get_git_commit_hash(install_wd)
 
 is_git_dir_dirty <- function(dir) {
   tryCatch(
-    any(sapply(git2r::status(repo = dir), length)),
+    any(vapply(git2r::status(repo = dir), length, numeric(1)) > 0),
     error = function(cond) FALSE
   )
 }

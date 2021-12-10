@@ -125,5 +125,3 @@ iTReX.dirs <- function(project_dir, PID) {
 
   return(output_dir)
 }
-
-

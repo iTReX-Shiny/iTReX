@@ -11,7 +11,7 @@
     "CRAc_height": 250,
     "CRAc_width": 500,
     "dropdown_cohort": 0,
-    "dropdown_healthy_controls": 0,
+    "dropdown_reference_samples": 0,
     "dropdown_single_sample": 0,
     "dropdownHitNetDrugAnnotation": 0,
     "dropdownHitNetDrugDank": 0,
@@ -24,20 +24,6 @@
     "file_drugtarget": null,
     "file_drugtargetO": null,
     "fileOmics": null,
-    "healthy_controls_file": {
-      "name": [
-        "iTReX-Demo_Controls_DKFZ_ST10-min.xlsx"
-      ],
-      "size": [
-        12118
-      ],
-      "type": [
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      ],
-      "datapath": [
-        "0.xlsx"
-      ]
-    },
     "HitNet": 0,
     "HitNetLicense": false,
     "iTReX": "MRA-mod/Sample Screen",
@@ -169,6 +155,20 @@
     "parTable_state": null,
     "QC_mod": "Screen Summary",
     "readout_matrices_file": null,
+    "reference_samples_file": {
+      "name": [
+        "iTReX-Demo_Controls_DKFZ_ST10-min.xlsx"
+      ],
+      "size": [
+        12118
+      ],
+      "type": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "datapath": [
+        "0.xlsx"
+      ]
+    },
     "sample": "INF_R_153",
     "sample_CRA": "INF_R_153",
     "sample_MRA": "INF_R_153",
@@ -226,7 +226,7 @@
     "Tupload_inputO": null,
     "type_of_analysis": "StepA",
     "type_of_readout": "cell_viability",
-    "upload_healthy_controls": true,
+    "upload_reference_samples": true,
     "viewQCreport": 1,
     "vis_CRA": 0,
     "vis_MRA": 0,
@@ -275,7 +275,6 @@
         }
       ]
     },
-    "healthy_controls_uploaded": true,
     "layout_table_uploaded": true,
     "parTable": {
       "x": {
@@ -484,6 +483,7 @@
       ]
     },
     "readout_matrices_uploaded": false,
+    "reference_samples_uploaded": true,
     "summary": {
       "x": {
         "filter": "none",

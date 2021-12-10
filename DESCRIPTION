@@ -1,33 +1,43 @@
 Type: Package
 Package: iTReX
 Title: interactive Therapy Response eXploration
-Version: 1.1.0
+Version: 1.1.1
 Authors@R:
   c(person(given = "Dina",
            family = "ElHarouni",
-           role = c("aut", "cre"),
-           email = "dina.elharouni@gmail.com",
+           role = c("cre", "aut", "dis", "prg", "wam"),
+           email = "d.elharouni@kitz-heidelberg.de",
            comment = c(ORCID = "0000-0003-1488-0347")),
     person(given = "Yannick",
            family = "Berker",
-           role = c("aut"),
+           role = c("aut", "prg", "dtc", "dtm", "rev", "pfr"),
            email = "yannick.berker@kitz-heidelberg.de",
-           comment = c(ORCID = "0000-0002-6707-0834")))
+           comment = c(ORCID = "0000-0002-6707-0834")),
+    person(given = "Matthias",
+           family = "Schlesner",
+           role = c("ccp", "aut", "ths", "rev", "pfr"),
+           email = "matthias.schlesner@informatik.uni-augsburg.de",
+           comment = c(ORCID = "0000-0002-5896-4086")),
+    person(given = "Sina",
+           family = "Oppermann",
+           role = c("ccp", "aut", "dtc", "ths", "rev", "pfr"),
+           email = "sina.oppermann@kitz-heidelberg.de",
+           comment = c(ORCID = "0000-0002-9101-260X")))
 Description: An R/Shiny web app for interactive exploration of mono- and
     combination therapy dose response profiling data and drug
     target interaction network mapping.
 License: GPL-3
-URL: https://github.com/D-Harouni/iTReX
-BugReports: https://github.com/D-Harouni/iTReX/issues
+URL: https://github.com/iTReX-Shiny/iTReX
+BugReports: https://github.com/iTReX-Shiny/iTReX/issues
 Depends: R (>= 3.5.0), shiny
-biocViews:
+biocViews: ShinyApps, Network
 Imports: ComplexHeatmap, imageHTS, OmnipathR, base64enc, bayestestR, circlize,
     data.table, desc, dplyr, DT, ggplot2, ggpubr, git2r, glue, htmlwidgets,
     igraph, knitr, nplr, openxlsx, patchwork, plotly, purrr, readr, readxl,
     rlang, rmarkdown, shinyjs, shinythemes, shinyWidgets, stats, stringr, tools,
     tibble, tidyr, utils, zeallot, zip
-Suggests: BiocCheck, curl, devtools, httr, kableExtra, lintr, processx, remotes,
-    rmdformats, shinytest, styler, testthat (>= 3.0.0)
+Suggests: BiocCheck, Cairo, curl, devtools, httr, kableExtra, lintr, processx,
+    remotes, rmdformats, shinytest, styler, testthat (>= 3.0.0)
 Encoding: UTF-8
 RoxygenNote: 7.1.2
 Config/testthat/edition: 3

@@ -61,6 +61,15 @@ omniPathLicenseButton <- function(mod) {
   )
 }
 
+doiLink <- function(doi) {
+  url <- paste0("https://doi.org/", doi)
+  a(href = url, url)
+}
+
+mailtoLink <- function(email, suffix = "") {
+  tagList(a(href = paste0("mailto:", email), "\u2709"), paste0(email, suffix))
+}
+
 itrex_footer <- function() {
   tags$footer(tags$br(), tags$small(tags$b(
     HTML("&copy;"), "2021", tags$a("DKFZ", href = "https://www.dkfz.de/")
@@ -94,7 +103,8 @@ itrex_ui <- function() fluidPage( # styler: off
   fluidRow(
     column(2, img(src = "logos/KiTZ.png", width = 115, height = 40)),
     column(8, h4(
-      paste0("iTReX: interactive Therapy Response eXploration v", version()),
+      "iTReX: interactive Therapy Response eXploration",
+      if (!isTRUE(getOption("shiny.testmode"))) paste0("v", version()),
       title = version(long = TRUE),
       align = "center",
     )),
@@ -123,7 +133,10 @@ itrex_ui <- function() fluidPage( # styler: off
         color: black;
         background-color: white;
         text-align: center;
-      }"
+      }",
+      ".modal-footer {
+        text-align: center;
+      }",
     )),
     tags$base(target = "_blank"),
   ),
@@ -223,18 +236,18 @@ itrex_ui <- function() fluidPage( # styler: off
           h4(
             "Optional Input Files",
             myDropDownButton(
-              inputId = "dropdown_healthy_controls",
-              h6("iTReX can compute selective scores if healthy reference control samples are available."),
-              h6("Please chek the box below to upload the healthy controls spreadsheet (optional). 
-                 The healthy control samples must by analyzed first using iTReX, The DSS_asym scores must be used to compute the mean of multiple healthy samples and the spreadsheet should be with the same format as the available demo below:"),
-              fileDownloadButton("iTReX-Demo_Controls_DKFZ_ST10-min.xlsx", "Healthy Reference Controls"),
+              inputId = "dropdown_reference_samples",
+              h6("iTReX can compute selective scores if reference sample(s) are available."),
+              h6("Please check the box below to upload the reference sample(s) spreadsheet (optional).
+                 The reference sample(s) must by analyzed first using iTReX, The DSS_asym scores must be used to compute the mean of multiple reference samples and the spreadsheet should be with the same format as the available demo below:"),
+              fileDownloadButton("iTReX-Demo_Controls_DKFZ_ST10-min.xlsx", "Reference Sample(s)"),
               h6("Please note that the therapy names must match the uploaded therapies specified in the screen layout, any mismatched therapy names will be ignored and computed as NA [NB: Naming is case sensitive].")
             ),
           ),
           hr(),
-          checkboxInput("upload_healthy_controls", "Upload Healthy Controls"),
+          checkboxInput("upload_reference_samples", "Upload Reference Sample(s)"),
           fileInput(
-            "healthy_controls_file", "Healthy Controls (.xlsx)",
+            "reference_samples_file", "Reference Sample(s) (.xlsx)",
             accept = ".xlsx"
           ),
         ),
@@ -276,8 +289,8 @@ itrex_ui <- function() fluidPage( # styler: off
                 "output.layout_table_uploaded &&",
                 "((input.layout_and_readouts == 'single_file') ||",
                 " output.readout_matrices_uploaded) &&",
-                "(!input.upload_healthy_controls ||",
-                " output.healthy_controls_uploaded)"
+                "(!input.upload_reference_samples ||",
+                " output.reference_samples_uploaded)"
               ),
               actionButton("start_oca", "Start One-Click Analysis"),
             ),
@@ -286,8 +299,8 @@ itrex_ui <- function() fluidPage( # styler: off
                 "!output.layout_table_uploaded ||",
                 "((input.layout_and_readouts != 'single_file') &&",
                 " !output.readout_matrices_uploaded) ||",
-                "(input.upload_healthy_controls &&",
-                " !output.healthy_controls_uploaded)"
+                "(input.upload_reference_samples &&",
+                " !output.reference_samples_uploaded)"
               ),
               "Please upload all required input files to continue.",
             ),
@@ -315,8 +328,8 @@ itrex_ui <- function() fluidPage( # styler: off
                 "output.layout_table_uploaded &&",
                 "((input.layout_and_readouts == 'single_file') ||",
                 " output.readout_matrices_uploaded) &&",
-                "(!input.upload_healthy_controls ||",
-                " output.healthy_controls_uploaded)"
+                "(!input.upload_reference_samples ||",
+                " output.reference_samples_uploaded)"
               ),
               actionButton("viewQCreport", "Run QCN Analysis"),
             ),
@@ -325,8 +338,8 @@ itrex_ui <- function() fluidPage( # styler: off
                 "!output.layout_table_uploaded ||",
                 "((input.layout_and_readouts != 'single_file') &&",
                 " !output.readout_matrices_uploaded) ||",
-                "(input.upload_healthy_controls &&",
-                " !output.healthy_controls_uploaded)"
+                "(input.upload_reference_samples &&",
+                " !output.reference_samples_uploaded)"
               ),
               "Please upload all required input files first.",
             ),
@@ -729,73 +742,107 @@ itrex_ui <- function() fluidPage( # styler: off
         column(3),
         column(
           6,
-          h5(strong("About iTReX:")),
-          span(h5("iTReX is an R/Shiny web application for interactive analysis,
+          span(
+            style = "text-align:justify",
+            h5(strong("About iTReX")),
+            p("iTReX is an R/Shiny web application for interactive analysis,
                 visualization and exploration of mono- and combination therapy dose response profiling data
                 and drug target interaction network mapping.
                 iTReX features an extended version of the drug sensitivity score (DSS_asym),
                 integrating an advanced five-parameter logistic dose-response curve model
-                and a differential drug sensitivity score (dcDSS) for combination therapy profiling."), style = "text-align:justify"),
-          hr(),
-          h5(strong("License:")),
-          span(h5(
-            "The iTReX package is being developed on",
-            a(href = "https://github.com/D-Harouni/iTReX", "GitHub"),
-            " under the", a(href = "https://www.gnu.org/licenses/gpl-3.0.en.html", "GLPv3"), "license"
-          ), style = "text-align:justify"),
-          hr(),
-          h5(strong("Disclaimer:")),
-          span(h5("The use of the app is purely for research purpose."), style = "text-align:justify"),
-          span(h5("The application is under development and might be subject to changes.
-              It has not been verified and has not been clinically validated."), style = "text-align:justify"),
-          span(h5("Use of the provided results for diagnostic or therapy stratification or any implementation of the results
-              in a clinical setting is in the sole responsibility of the treating physician and/or user."), style = "text-align:justify"),
-          span(h5("The user is responsible for the quality of the uploaded data and ensures that data
-              do not contain any personal data."), style = "text-align:justify"),
-          hr(),
-          h5(strong("Privacy:")),
-          span(h5(
-            "Further information about our Terms of Use and Data Protection Policy can be found here:",
-            a(href = "docs/iTReX-Datenschutz.pdf", "in German"),
-            ",",
-            a(href = "docs/iTReX-Data-Privacy.pdf", "in English"),
-          ), style = "text-align:justify"),
-          hr(),
-          h5(strong("Contact:")),
-          span(h5("Dina ElHarouni", a(href = "mailto:d.elharouni@kitz-heidelberg.de", "\u2709"),
-            ", Yannick Berker", a(href = "mailto:yannick.berker@kitz-heidelberg.de", "\u2709"),
-            ", Sina Oppermann", a(href = "mailto:sina.oppermann@kitz-heidelberg.de", "\u2709"),
-            ", Matthias Schlesner", a(href = "mailto:matthias.schlesner@informatik.uni-augsburg.de", "\u2709"),
-            style = "text-align:justify"
-          )),
-          # span(h5("Email: iTReX@dkfz.de"), style = "text-align:justify"),
-          hr(),
-          h5(strong("Contribution:")),
-          span(h5("iTReX was developed at the German Cancer Research Center (DKFZ), Hopp Children's Cancer Center (KiTZ), Heidelberg, Germany in a collaboration between the group of
-              Translational Pediatric Pharmacology, Clinical Cooperation Unit - Pediatric Oncology (Dr. Sina Oppermann) and the Bioinformatics and Omics Data Analytics group
-              (Prof. Dr. Matthias Schlesner)",
-            style = "text-align:justify"
-          )),
-          span(h5("Developers: Dina ElHarouni, Yannick Berker, Sina Oppermann, Matthias Schlesner"), style = "text-align:justify"),
-          hr(),
-          h5(strong("How to cite:")),
-          span(h5("ElHarouni D, Schlesner M & Oppermann S. iTReX:
-              Interactive exploration of mono-and combination therapy dose response profiling data.
-              Manuscript in Submission (2021).",
-            style = "text-align:justify"
-          )),
-          hr(),
-          h5(strong("iTReX project usage:")),
-          span(h5("-", a(href = "https://www.dkfz.de/en/PaedOnko/compass.html", "COMPASS"),
-            "(Clinical implementation Of Multidimensional PhenotypicAl drug SenSitivities in paediatric precision oncology)",
-            style = "text-align:justify"
-          )),
-          span(h5("-", a(href = "https://www.unite-glioblastoma.de", "UNITE"),
-            "(Understanding and Targeting Resistance In Glioblastoma)",
-            style = "text-align:justify"
-          )),
-          hr()
-        )
+                and a differential drug sensitivity score (dcDSS) for combination therapy profiling."),
+            hr(),
+            h5(strong("License information")),
+            p(
+              "The iTReX source code is available on",
+              a(href = "https://github.com/iTReX-Shiny/iTReX", "GitHub"),
+              " and licensed under the",
+              a(
+                href = "https://www.gnu.org/licenses/gpl-3.0.en.html",
+                "GNU General Public License v3.0", .noWS = "after",
+              ),
+              ".",
+            ),
+            hr(),
+            h5(strong("Disclaimer")),
+            p("The use of the app is purely for research purposes."),
+            p("The application is under development and might be subject to changes.
+              It has not been verified and has not been clinically validated."),
+            p("Use of the provided results for diagnostic or therapy stratification or any implementation of the results
+              in a clinical setting is in the sole responsibility of the treating physician and/or user."),
+            p("The user is responsible for the quality of the uploaded data and ensures that data
+              do not contain any personal data."),
+            hr(),
+            h5(strong("Privacy")),
+            p(
+              "Further information about our Terms of Use and Data Protection Policy can be found",
+              a(href = "docs/iTReX-Data-Privacy.pdf", "in English"),
+              " or ",
+              a(href = "docs/iTReX-Datenschutz.pdf", "in German", .noWS = "after"),
+              ".",
+            ),
+            hr(),
+            h5(strong("Version information")),
+            p(
+              "We follow", a(href = "https://semver.org/", "semantic versioning", .noWS = "after"), ":",
+              "changes in the first digit of the version number",
+              "(e.g., v", strong("1", .noWS = "outside"), ".1.1)",
+              "indicate major updates potentially with different result outputs.",
+              "Changes in the second digit",
+              "(e.g., v1.", strong("1", .noWS = "outside"), ".1)",
+              "indicate added features, while changes in the third digit",
+              "(e.g., v1.1.", strong("1", .noWS = "outside"), ")",
+              "indicate patches and bug fixes.",
+            ),
+            hr(),
+            h5(strong("Contact")),
+            p(
+              "In case of any questions, feel free to open an issue on",
+              a("GitHub", href = "https://github.com/iTReX-Shiny/iTReX/issues"),
+              "or contact us via email at",
+              mailtoLink("itrex@dkfz-heidelberg.de", "."),
+            ),
+            hr(),
+            h5(strong("Contribution")),
+            p(
+              "iTReX was developed in a collaboration between the groups of",
+              tags$ul(
+                tags$li("Translational Pediatric Pharmacology, Clinical Cooperation Unit Pediatric Oncology (Dr. Sina Oppermann) and"),
+                tags$li("Bioinformatics and Omics Data Analytics (Prof. Dr. Matthias Schlesner)"),
+              ),
+              "at the Hopp Children's Cancer Center (KiTZ) and",
+              "the German Cancer Research Center (DKFZ), Heidelberg, Germany.",
+            ),
+            p(
+              "Authors:",
+              "Dina ElHarouni, Yannick Berker (Programmers),",
+              "Sina Oppermann, Matthias Schlesner",
+            ),
+            hr(),
+            h5(strong("How to cite")),
+            p(
+              "ElHarouni D, Berker Y, \u2026, Schlesner M, Oppermann S (2022).",
+              "iTReX: Interactive exploration of mono- and combination therapy dose response profiling data.",
+              tags$i("Pharmacological Research", .noWS = "after"), ",",
+              tags$i("175", .noWS = "after"), ",", "105996.",
+              doiLink("10.1016/j.phrs.2021.105996"),
+            ),
+            hr(),
+            h5(strong("iTReX usage")),
+            p("iTReX is currently being used in the following projects:"),
+            tags$ul(
+              tags$li(
+                a(href = "https://www.dkfz.de/en/PaedOnko/compass.html", "COMPASS"),
+                "(Clinical implementation Of Multidimensional PhenotypicAl drug SenSitivities in paediatric precision oncology)",
+              ),
+              tags$li(
+                a(href = "https://www.unite-glioblastoma.de", "UNITE Glioblastoma"),
+                "(Understanding and Targeting Resistance in Glioblastoma)",
+              ),
+            ),
+            hr(),
+          ),
+        ),
       ),
       itrex_footer(),
     ),
@@ -833,12 +880,6 @@ itrex_ui <- function() fluidPage( # styler: off
       br(),
       strong(textOutput("Q11")),
       h5(textOutput("answer11")),
-      br(),
-      strong(textOutput("Q12")),
-      h5(textOutput("answer12")),
-      br(),
-      strong(textOutput("Q13")),
-      h5(textOutput("answer13")),
       br(),
       h5(span(textOutput("extrainfo"), style = "color:steelblue")),
       itrex_footer(),

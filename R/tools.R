@@ -54,12 +54,15 @@ build_manuals <- function(pkg = getwd()) {
   shiny_docs_path <- file.path(pkg, "inst", "shiny", "www", "docs")
 
   devtools::build_manual(pkg = pkg, path = shiny_docs_path)
+  pdf_file <- dir(shiny_docs_path, "^iTReX_[0-9\\.]+\\.pdf$", full.names = TRUE)
+  stopifnot(length(pdf_file) == 1)
+  file.rename(pdf_file, file.path(shiny_docs_path, "iTReX-Package-Manual.pdf"))
 
   tryCatch(devtools::build_vignettes(pkg = pkg), error = function(cond) {
     warning("build_vignettes() failed, falling back to rmarkdown::render()")
     rmarkdown::render(file.path(pkg, "vignettes", "iTReX-User-Manual.Rmd"))
   })
-  html_files <- list.files(file.path(pkg, "doc"), "*.html", full.names = TRUE)
+  html_files <- list.files(file.path(pkg, "doc"), "\\.html$", full.names = TRUE)
   stopifnot(length(html_files) > 0)
   for (html_file in html_files) {
     file.copy(html_file, shiny_docs_path, overwrite = TRUE)
@@ -425,10 +428,12 @@ prepare <- function(pkg = getwd(), manual = TRUE) {
 #' @param pkg The directory holding the working copy.
 #' @param strict Whether to check for CRAN and BioConductor compatibility.
 prep_and_check <- function(pkg = getwd(), strict = FALSE) {
-  # manual = FALSE avoids "internal error -3 in R_decompress1" warning.
   prepare(pkg, manual = FALSE)
-  devtools::install(pkg = pkg, build = FALSE)
-  lintr::lint_dir(path = pkg, pattern = "(?i)\\.(R|Rmd)$")
+  print(lintr::lint_dir(
+    path = pkg,
+    pattern = "(?i)\\.(R|Rmd)$",
+    exclusions = "doc/",
+  ))
   print(devtools::check(
     pkg = pkg,
     document = TRUE,
@@ -449,7 +454,10 @@ prep_and_check <- function(pkg = getwd(), strict = FALSE) {
 
 #' Install from GitHub and test
 test_github <- function() {
-  devtools::install_github("D-Harouni/iTReX", dependencies = TRUE, force = TRUE)
+  devtools::install_github(
+    "iTReX-Shiny/iTReX",
+    dependencies = TRUE, force = TRUE
+  )
   devtools::unload("iTReX")
   iTReX::test()
 }
