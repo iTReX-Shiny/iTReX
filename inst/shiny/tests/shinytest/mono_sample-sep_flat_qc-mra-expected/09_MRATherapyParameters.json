@@ -11,7 +11,7 @@
     "CRAc_height": 250,
     "CRAc_width": 500,
     "dropdown_cohort": 0,
-    "dropdown_healthy_controls": 0,
+    "dropdown_reference_samples": 0,
     "dropdown_single_sample": 0,
     "dropdownHitNetDrugAnnotation": 0,
     "dropdownHitNetDrugDank": 0,
@@ -24,7 +24,6 @@
     "file_drugtarget": null,
     "file_drugtargetO": null,
     "fileOmics": null,
-    "healthy_controls_file": null,
     "HitNet": 0,
     "HitNetLicense": false,
     "iTReX": "MRA-mod/Sample Screen",
@@ -169,6 +168,7 @@
         "0.zip"
       ]
     },
+    "reference_samples_file": null,
     "sample": "Flat",
     "sample_CRA": "Flat",
     "sample_MRA": "Flat",
@@ -226,7 +226,7 @@
     "Tupload_inputO": null,
     "type_of_analysis": "OCA",
     "type_of_readout": "cell_viability",
-    "upload_healthy_controls": false,
+    "upload_reference_samples": false,
     "viewQCreport": 0,
     "vis_CRA": 0,
     "vis_MRA": 1,
@@ -325,7 +325,6 @@
       ]
     },
     "end_oca": "One-Click Analysis is complete.",
-    "healthy_controls_uploaded": false,
     "layout_table_uploaded": true,
     "layout1": {
       "src": "[image data sha1: e7f55b1ce0081bc91de77e358a66b805e6f9f47e]",
@@ -594,6 +593,7 @@
       ]
     },
     "readout_matrices_uploaded": true,
+    "reference_samples_uploaded": false,
     "scatter": {
       "src": "[image data sha1: 6275a0288270d83f56e4b182ede5eed2ed80780e]",
       "width": 800,

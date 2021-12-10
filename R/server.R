@@ -378,11 +378,15 @@ itrex_server <- function(input, output, session) {
     tags$b(
       "Read the full Disclaimer, Terms of Use and Data Privacy Policy in",
       a(href = "docs/iTReX-Data-Privacy.pdf", "English"), "or",
-      a(href = "docs/iTReX-Datenschutz.pdf", "German."),
+      a(href = "docs/iTReX-Datenschutz.pdf", "German", .noWS = "after"), ".",
     ),
     easyClose = FALSE,
-    footer = actionButton(
-      "accept", "Accept Disclaimer, Terms of Use and Data Privacy Policy"
+    footer = tagList(
+      actionButton("decline", "Decline"),
+      div(style = "width:30px; display:inline-block;"),
+      actionButton(
+        "accept", "Accept Disclaimer, Terms of Use and Data Privacy Policy"
+      ),
     ),
   )
 
@@ -393,6 +397,7 @@ itrex_server <- function(input, output, session) {
       removeModal()
       session$sendCustomMessage("terms-accepted", message = TRUE)
     })
+    observeEvent(input$decline, session$close())
   })
 
   # Remove DataTable states (which include time!) from shinytest JSON snapshots
@@ -439,10 +444,10 @@ itrex_server <- function(input, output, session) {
     )
   })
 
-  shinyjs::hide("healthy_controls_file")
-  observeEvent(input$upload_healthy_controls, {
-    condition <- input$upload_healthy_controls
-    shinyjs::toggle("healthy_controls_file", anim = TRUE, condition = condition)
+  shinyjs::hide("reference_samples_file")
+  observeEvent(input$upload_reference_samples, {
+    condition <- input$upload_reference_samples
+    shinyjs::toggle("reference_samples_file", anim = TRUE, condition = condition)
     shinyjs::toggleState("MRA_sdss", condition = condition)
     shinyjs::toggleState("CRA_sdss", condition = condition)
   })
@@ -459,8 +464,8 @@ itrex_server <- function(input, output, session) {
   output$readout_matrices_uploaded <- reactive(!is.null(input$readout_matrices_file))
   outputOptions(output, "readout_matrices_uploaded", suspendWhenHidden = FALSE)
 
-  output$healthy_controls_uploaded <- reactive(!is.null(input$healthy_controls_file))
-  outputOptions(output, "healthy_controls_uploaded", suspendWhenHidden = FALSE)
+  output$reference_samples_uploaded <- reactive(!is.null(input$reference_samples_file))
+  outputOptions(output, "reference_samples_uploaded", suspendWhenHidden = FALSE)
 
   project_dir <- tempfile(pattern = "iTReX")
   dir.create(project_dir)
@@ -500,8 +505,8 @@ itrex_server <- function(input, output, session) {
             heatmap_dir <- file.path(project_dir, "Heatmap_data", "mono")
 
             # Healthy control reference
-            control_dir <- if (input$upload_healthy_controls) {
-              input$healthy_controls_file$datapath
+            control_dir <- if (input$upload_reference_samples) {
+              input$reference_samples_file$datapath
             }
 
             screenData <- read.csv(file.path(output_dir, "pre_process", paste0(PID, "_screenData.csv")))
@@ -554,8 +559,8 @@ itrex_server <- function(input, output, session) {
               heatmap_dir <- file.path(project_dir, "Heatmap_data", "combo")
 
               ## Healthy control reference
-              control_dir <- if (input$upload_healthy_controls) {
-                input$healthy_controls_file$datapath
+              control_dir <- if (input$upload_reference_samples) {
+                input$reference_samples_file$datapath
               }
 
               screenData <- read.csv(file.path(output_dir, "pre_process", paste0(PID, "_screenData.csv")))
@@ -630,7 +635,7 @@ itrex_server <- function(input, output, session) {
 
   # Download Archive
   output$Archive <- downloadHandler(
-    paste0("iTReX-Results_", format(Sys.time(), "%Y-%m-%d-%H-%M-%S"), ".zip"),
+    paste0("iTReX-Results_", format(Sys.time(), "%Y-%m-%d-%H-%M-%S"), "_v", version(), ".zip"),
     function(file) {
       zip::zipr(file, dir(project_dir, full.names = TRUE))
     }
@@ -808,8 +813,8 @@ itrex_server <- function(input, output, session) {
           heatmap_dir <- file.path(project_dir, "Heatmap_data", "mono")
 
           # Healthy control reference
-          control_dir <- if (input$upload_healthy_controls) {
-            input$healthy_controls_file$datapath
+          control_dir <- if (input$upload_reference_samples) {
+            input$reference_samples_file$datapath
           }
 
           screenData <- read.csv(file.path(output_dir, "pre_process", paste0(PID, "_screenData.csv")))
@@ -840,7 +845,7 @@ itrex_server <- function(input, output, session) {
             DT::formatRound(setdiff(3:23, 10:11), digits = 2)
         })
         output$xls_table <- downloadHandler(
-          filename = "spreadsheet.xlsx",
+          filename = paste0("spreadsheet_v", version(), ".xlsx"),
           content = function(file) {
             openxlsx::saveWorkbook(wb, file)
           }
@@ -869,7 +874,7 @@ itrex_server <- function(input, output, session) {
         })
 
         output$Heathtml <- downloadHandler(
-          filename = "interactive_heatmap.html",
+          filename = paste0("interactive_heatmap_v", version(), ".html"),
           content = function(file) {
             rmarkdown_render("DSS_interactive", file)
           }
@@ -940,7 +945,7 @@ itrex_server <- function(input, output, session) {
 
 
         output$dsshtml <- downloadHandler(
-          filename = "DSS_asym_hits.html",
+          filename = paste0("DSS_asym_hits_v", version(), ".html"),
           content = function(file) {
             rmarkdown_render("DSS_Hits_Waterfall", file)
           }
@@ -1030,7 +1035,7 @@ itrex_server <- function(input, output, session) {
         })
 
         output$sdsshtml <- downloadHandler(
-          filename = "sDSS_asym_hits.html",
+          filename = paste0("sDSS_asym_hits_v", version(), ".html"),
           content = function(file) {
             rmarkdown_render("sDSS_Waterfall", file)
           }
@@ -1063,8 +1068,8 @@ itrex_server <- function(input, output, session) {
           heatmap_dir <- file.path(project_dir, "Heatmap_data", "combo")
 
           ## Healthy control reference
-          control_dir <- if (input$upload_healthy_controls) {
-            input$healthy_controls_file$datapath
+          control_dir <- if (input$upload_reference_samples) {
+            input$reference_samples_file$datapath
           }
 
           screenData <- read.csv(file.path(output_dir, "pre_process", paste0(PID, "_screenData.csv")))
@@ -1096,7 +1101,7 @@ itrex_server <- function(input, output, session) {
             DT::formatRound(setdiff(3:23, 10:11), digits = 2)
         })
         output$xls_table2 <- downloadHandler(
-          filename = "spreadsheet.xlsx",
+          filename = paste0("spreadsheet_v", version(), ".xlsx"),
           content = function(file) {
             openxlsx::saveWorkbook(wb_combo, file)
           }
@@ -1165,7 +1170,7 @@ itrex_server <- function(input, output, session) {
         })
 
         output$dsshtml_combo <- downloadHandler(
-          filename = "DSS_Hits_Waterfall_combo.html",
+          filename = paste0("DSS_Hits_Waterfall_combo_v", version(), ".html"),
           content = function(file) {
             rmarkdown_render("DSS_Hits_Waterfall_combo", file)
           }
@@ -1212,7 +1217,7 @@ itrex_server <- function(input, output, session) {
             DT::formatRound(2:7, digits = 2)
         })
         output$xls_tablecombo <- downloadHandler(
-          filename = "CRA_spreadsheet.xlsx",
+          filename = paste0("CRA_spreadsheet_v", version(), ".xlsx"),
           content = function(file) {
             openxlsx::saveWorkbook(wb, file)
           }
@@ -1331,14 +1336,14 @@ itrex_server <- function(input, output, session) {
         })
 
         output$dcDSShtml_combo <- downloadHandler(
-          filename = "dcDSS_asym_hits.html",
+          filename = paste0("dcDSS_asym_hits_v", version(), ".html"),
           content = function(file) {
             rmarkdown_render("DSS_Hits_Waterfall_combo", file)
           }
         )
 
         output$comboreport <- downloadHandler(
-          filename = "Combo_Report.html",
+          filename = paste0("Combo_Report_v", version(), ".html"),
           content = function(file) {
             rmarkdown_render("Combo_Report", file)
           }
@@ -1428,7 +1433,7 @@ itrex_server <- function(input, output, session) {
               showModal(modalDialog(
                 title = "HitNet-mod",
                 paste0("The sDSS_asym network is not generated for this sample.
-                This may be due to setting the threshold too low, hence increase your threshold, or a healthy reference sample(s)
+                This may be due to setting the threshold too low, hence increase your threshold, or the reference sample(s)
                 was not uploaded."),
                 easyClose = TRUE,
                 footer = NULL
@@ -1458,7 +1463,7 @@ itrex_server <- function(input, output, session) {
         })
 
         output$HitNetreport <- downloadHandler(
-          filename = "HitNet_Report.html",
+          filename = paste0("HitNet_Report_v", version(), ".html"),
           content = function(file) {
             rmarkdown_render("HitNet_Report", file)
           }
@@ -1537,7 +1542,7 @@ itrex_server <- function(input, output, session) {
               showModal(modalDialog(
                 title = "Omics-mod",
                 paste0("The sDSS_asym network is not generated for this sample.
-                This may be due to setting the threshold too low, hence increase your threshold, or a healthy reference sample(s)
+                This may be due to setting the threshold too low, hence increase your threshold, or the reference sample(s)
                 was not uploaded."),
                 easyClose = TRUE,
                 footer = NULL
@@ -1566,7 +1571,7 @@ itrex_server <- function(input, output, session) {
         })
 
         output$Omicsreport <- downloadHandler(
-          filename = "Omics_Report.html",
+          filename = paste0("Omics_Report_v", version(), ".html"),
           content = function(file) {
             rmarkdown_render("Omics_Report", file)
           }
@@ -1590,15 +1595,15 @@ itrex_server <- function(input, output, session) {
     "2- Can iTReX CRA module handle more than one drug combination in a fixed single concentration added on the library?"
   })
   output$answer2 <- renderText({
-    "The current version of iTReX can analyze one drug combination added to any number of monotherapy library"
+    "The current version of iTReX can analyze one drug combination added to any number of monotherapy library."
   })
 
   output$Q3 <- renderText({
-    "3- Hox can I upload multiple samples following the same layout?"
+    "3- How can I upload multiple samples following the same layout?"
   })
   output$answer3 <- renderText({
     "You can use the cohort upload settings, where you upload one layout spreadsheets
-      and all your sample plate readouts as multiple .xlsx or .txt files in a zipped folder"
+      and all your sample plate readouts as multiple .xlsx or .txt files in a zipped folder."
   })
 
   output$Q4 <- renderText({
@@ -1624,53 +1629,39 @@ itrex_server <- function(input, output, session) {
   })
 
   output$Q7 <- renderText({
-    "7- Can I combine screens with different layouts for a cohort analysis?"
+    "7- Can I combine multiple screens (technical replicates) into one analysis output?"
   })
   output$answer7 <- renderText({
-    "No, iTReX currently can only run a cohort analysis performed with one layout for all the screens."
+    "Yes, you will need to name the replicate plates A and B .. etc after the plate number, e.g (SampleID_1A.xlsx, SampleID_1B.xlsx)."
   })
 
   output$Q8 <- renderText({
-    "8- I want to use the plate reader output as such, do I need to reorganize the data before?"
+    "8- Can I use any kind of multiple well format (24, 96, 384, 1536 well-plates)?"
   })
   output$answer8 <- renderText({
-    "Yes, please follow the demo screen redouts available at the home page info drop down menu. This feature will be available to handle any plate reader output in iTReX v1.2.0"
-  })
-
-  output$Q9 <- renderText({
-    "9- Can I combine multiple screens (technical replicates) into one analysis output?"
-  })
-  output$answer9 <- renderText({
-    "Yes, you will need to name the replicate plates A and B .. etc after the plate number, e.g (sample_N1A.xlsx, sample_N1B.xlsx)"
-  })
-
-  output$Q10 <- renderText({
-    "10- Can I use any kind of multiple well format (24, 96, 384, 1536 well-plates)?"
-  })
-  output$answer10 <- renderText({
     "Yes, iTReX can process multiple well formats."
   })
 
-  output$Q11 <- renderText({
-    "11- Is iTReX restricted to a specific number of concentrations/doses?"
+  output$Q9 <- renderText({
+    "9- Is iTReX restricted to a specific number of concentrations/doses?"
   })
-  output$answer11 <- renderText({
-    "Yes, iTReX is currently restricted to 5 concentrations/doses. This feature will be flexible to handle less and more doses in iTReX v1.0.2)"
+  output$answer9 <- renderText({
+    "Yes, iTReX is currently restricted to 5 concentrations/doses. This feature will be flexible to handle less and more doses in iTReX v1.2.0."
   })
 
-  output$Q12 <- renderText({
-    "12- If I run a combination screen, can I still visualize the results of the single agents if included in my screen?"
+  output$Q10 <- renderText({
+    "10- If I run a combination screen, can I still visualize the results of the single agents if included in my screen?"
   })
-  output$answer12 <- renderText({
+  output$answer10 <- renderText({
     "Yes, you can visualize results of single agents/monotherapies included in a combination screen using the MRA-mod tabs."
   })
 
-  output$Q13 <- renderText({
-    "13- Can I exclude samples with bad QC from a cohort analysis?"
+  output$Q11 <- renderText({
+    "11- Can I exclude outlier positive and negative control wells?"
   })
-  output$answer13 <- renderText({
+  output$answer11 <- renderText({
     "Yes, you can identify your fault wells of positive and negative controls after running the QCN-mod and
-      turn these wells into 'sample' instead of 'pos' or 'neg' and rerun the sample."
+      turn these wells into 'exclude' in the layout WellType column instead of 'pos' or 'neg' and rerun the sample."
   })
 
   session$onSessionEnded(function() {

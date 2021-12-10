@@ -492,7 +492,7 @@ plot_cohort_heatmap <- function(input, output, mod, heatmap_dir) {
     return()
   }
 
-  plot_sdss <- input[[paste0(mod, "_sdss")]] && !is.null(input$healthy_controls_file)
+  plot_sdss <- input[[paste0(mod, "_sdss")]] && !is.null(input$reference_samples_file)
   dss_label <- if (plot_sdss) "sDSS_asym" else "DSS_asym"
 
   tbl <- lapply(files, readxl::read_xlsx)

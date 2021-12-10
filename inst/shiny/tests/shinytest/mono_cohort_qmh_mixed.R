@@ -4,8 +4,8 @@ set_window()
 app$setInputs(number_of_samples = "cohort")
 app$uploadFile(layout_table_file = demo_path("MRA_Layout-Imaging-3Plates.xlsx"))
 app$uploadFile(readout_matrices_file = demo_path("MRA_3ReadoutsMixed.zip"))
-app$setInputs(upload_healthy_controls = TRUE)
-app$uploadFile(healthy_controls_file = demo_path("Controls_DKFZ_ST10-min.xlsx"))
+app$setInputs(upload_reference_samples = TRUE)
+app$uploadFile(reference_samples_file = demo_path("Controls_DKFZ_ST10-min.xlsx"))
 app$setInputs(start_oca = "click", timeout_ = 300e3)
 
 for (variant in c("NA", "Full")) {

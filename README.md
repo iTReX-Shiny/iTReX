@@ -19,20 +19,33 @@ v) a module for identifying potential sample-specific omics-based biomarkers fro
 
 ## Prerequisites
 
-1. An `R` interpreter ([www.r-project.org](https://www.r-project.org/)) -- we recommend version 4.0.0 or later.
+Regardless of your operating system, you will need at least:
+
+1. An `R` interpreter ([www.r-project.org](https://www.r-project.org/)) – we recommend version 4.1.2 or later.
 
 1. The `pandoc` document converter ([pandoc.org](https://pandoc.org/)), version 1.12.3 or later.
-   <!-- https://github.com/rstudio/rmarkdown/blob/5273047/R/render.R#L317-L320 -->
+   <!-- https://github.com/rstudio/rmarkdown/blob/69e6f983/R/render.R#L316-L320 -->
 
-1. Several more standard system requirements such as `git` and `make`.
+   `pandoc` is bundled in the free *RStudio Desktop* ([www.rstudio.com](https://www.rstudio.com/products/rstudio/#rstudio-desktop)).\
+   (You may need to add the `RStudio/bin/pandoc` folder to your `PATH` manually.)
+
+Optional dependencies include the following:
+
+1. To compile packages from source, several developer tools.
+
+   Note that source compilation can often be skipped at prompts such as this:
+
+   > Do you want to install from sources the packages which need compilation? (Yes/no/cancel)
 
 1. To run `shinytest`s, the `PhantomJS` headless browser ([phantomjs.org](https://phantomjs.org/)), version 2.1.1.
 
-### On Windows and Mac
+   `PhantomJS` can be installed from with `R`, see "Installation" section below.
 
-- `R` and `pandoc` are bundled in the free *RStudio Desktop* ([www.rstudio.com](https://www.rstudio.com/products/rstudio/#rstudio-desktop)).
-  
-  (You may need to add the `RStudio/bin/pandoc` folder to your `PATH` manually.)
+### On Windows
+
+- Developer tools are bundled in the free `Rtools4` ([https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)).
+
+  Don't forget to add them to your `PATH` environment variable.
 
 ### On Linux
 
@@ -46,7 +59,7 @@ v) a module for identifying potential sample-specific omics-based biomarkers fro
 
    to install `pandoc` and all system requirements. (If unsure, skip this step first.)
 
-- To run tests, the following may be required:
+- To run `shinytest`s, the following may be required:
 
    ```bash
    sudo apt-get install -y git gsfonts imagemagick make pandoc perl \
@@ -59,16 +72,17 @@ v) a module for identifying potential sample-specific omics-based biomarkers fro
 
 _iTReX_ can be installed from the `R` command prompt:
 
-1. Install the `devtools` package from [CRAN](https://cran.r-project.org/package=devtools):
+1. Install the `remotes` package from [CRAN](https://cran.r-project.org/package=remotes) \
+   (if you have it installed already, simply install again or ensure it is v2.4.2 or later, compare [r-lib/remotes#666](https://github.com/r-lib/remotes/pull/666)):
 
    ```r
-   install.packages("devtools")
+   install.packages("remotes")
    ```
 
-1. Install _iTReX_ from [GitHub](https://github.com/D-Harouni/iTReX):
+1. Install _iTReX_ from [GitHub](https://github.com/iTReX-Shiny/iTReX):
 
    ```r
-   devtools::install_github("D-Harouni/iTReX")
+   remotes::install_github("iTReX-Shiny/iTReX")
    ```
 
    After some up to 30 minutes, you will be greeted by
@@ -88,7 +102,7 @@ _iTReX_ can be installed from the `R` command prompt:
 1. Install _iTReX_ with optional dependencies:
 
    ```r
-   devtools::install_github("D-Harouni/iTReX", dependencies = TRUE, force = TRUE)
+   remotes::install_github("iTReX-Shiny/iTReX", dependencies = TRUE, force = TRUE)
    ```
 
 1. Install `PhantomJS`:

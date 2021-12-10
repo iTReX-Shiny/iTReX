@@ -203,7 +203,7 @@ show_download("MRA_2ReadoutsXlsx", ext = "zip", "Demo Cohort Readouts")
 
 - **Sample**: Any sample that is subject of your therapy tests: i.e. cell line, patient-derived xenografts, primary tumor or tissue sample.
 
-- **Healthy controls**: Any sample(s) that you would like to use as a reference to compare to and for which you have tested the therapy/therapies. You can use this to estimate the selectivity of the therapy, i.e. on a tumor sample vs a healthy control sample or selectivity of the therapy on a specific entity/cell line etc by calculating a selective drug sensitivity score (sDSS; Yadav et al. <a href="https://doi.org/10.1038/srep05193" target="_blank">2014</a>). You must run the analysis of the control reference sample before running the analysis of your sample of interest.
+- **Reference Sample(s)**: Any sample(s) that you would like to use as a reference to compare to and for which you have tested the therapy/therapies. You can use this to estimate the selectivity of the therapy, i.e. on a tumor sample vs a healthy reference sample or selectivity of the therapy on a specific entity/cell line etc by calculating a selective drug sensitivity score (sDSS; Yadav et al. <a href="https://doi.org/10.1038/srep05193" target="_blank">2014</a>). You must run the analysis of the reference sample(s) before running the analysis of your sample of interest.
 
 - **Positive controls (pos)**: Any toxic compound that kills most of the cells. This is used as a background signal control for normalization and serves as general cell death control. Example: Benzethonium Chloride.
 
@@ -230,7 +230,7 @@ iTRex is able to process data from any plate layout format (e.g; 96, 384, 1536 .
 
 **3-** Upload the layout table and/or readout matrices as indicated in the data preparation section of this user manual.
 
-**4-** If a healthy control reference is available, please check the **"Upload Healthy Controls"** box.
+**4-** If reference sample(s) is/are available, please check the **"Upload Reference Sample(s)"** box.
 
 **5-** Select the type of readout measures of the screen: **"Cell Viability"** or **"Cell Death"**.
 
@@ -364,7 +364,7 @@ show_test_image("mono_sample_BT-40_mra", "03_MRADSS_asymWaterfallPlots")
 
 - **sDSS~asym~ Waterfall Plots**
 
-Waterfall plot indicating the rank of the sensitivities of the therapies according to the sDSS~asym~ metric. The positive sDSS~asym~ indicates that the treatment has a higher effectivity in the sample than in the reference control (is selectively effective in the sample), while a negative sDSS~asym~ indicates a higher effect of treatment in the control sample, indicating general toxicity of the treatment. The plot is followed by the goodness of fit (GOF) scatter plot indicating the relation between the sDSS~asym~ and the GOF scatter plot. The second waterfall plot visualizes the treatment ranking based on the sDSS~asym,adj~ which takes the GOF into consideration within the final score.
+Waterfall plot indicating the rank of the sensitivities of the therapies according to the sDSS~asym~ metric. The positive sDSS~asym~ indicates that the treatment has a higher effectivity in the sample than in the reference sample(s) (is selectively effective in the sample), while a negative sDSS~asym~ indicates a higher effect of treatment in the control sample, indicating general toxicity of the treatment. The plot is followed by the goodness of fit (GOF) scatter plot indicating the relation between the sDSS~asym~ and the GOF scatter plot. The second waterfall plot visualizes the treatment ranking based on the sDSS~asym,adj~ which takes the GOF into consideration within the final score.
 
 ```{r}
 show_test_image("mono_sample_BT-40_mra", "04_sDSS_asymWaterfallPlots")
@@ -425,7 +425,7 @@ Heatmaps are generated for the whole uploaded cohort as demonstrated below:
 show_test_image("mono_cohort_heatmap", "01_Heatmap")
 ```
 
-The clustering distance can be adjusted to the method of interest. Moreover, checkboxes are available to visualize the sDSS~asym~ heatmap if the healthy control reference is used, the therapy standard deviation (SDs) and plate quality control zprime.
+The clustering distance can be adjusted to the method of interest. Moreover, checkboxes are available to visualize the sDSS~asym~ heatmap if reference sample(s) is/are used, the therapy standard deviation (SDs) and plate quality control zprime.
 
 The plot width and height can also be adjusted using the slider bar.
 

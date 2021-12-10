@@ -12,7 +12,7 @@ MRA.mod <- function(input, drdata, output_dir, control_dir, PID,
   colnames(drdata)[colnames(drdata) == "Concentration"] <- "dose"
   drdata$IC <- 1 - drdata$viability
   splitlist <- split(drdata, f = drdata$Treatment)
-  splitlist <- splitlist[sapply(splitlist, function(x) dim(x)[1]) > 0]
+  splitlist <- splitlist[vapply(splitlist, function(x) dim(x)[1], numeric(1)) > 0]
   titleframe <- data.frame(names(splitlist))
 
   n <- length(splitlist)
