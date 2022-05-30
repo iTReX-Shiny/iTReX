@@ -11,11 +11,13 @@
 #'   aes
 #'   coord_cartesian coord_flip
 #'   element_blank element_rect element_text
-#'   geom_bar geom_boxplot geom_jitter geom_label geom_line geom_point
+#'   geom_bar geom_boxplot geom_label geom_line geom_point
 #'     geom_ribbon geom_vline geom_text geom_tile
 #'   ggplot ggtitle
+#'   is.ggplot
 #'   labs
 #'   margin
+#'   position_jitter
 #'   scale_color_manual
 #'   scale_fill_gradient scale_fill_gradient2 scale_fill_manual
 #'   scale_x_continuous scale_x_discrete
@@ -33,7 +35,7 @@
 #' @importFrom shinyWidgets dropdownButton
 
 # https://stackoverflow.com/a/68393286
-.datatable.aware <- TRUE # nolint: object_name_linter.
+.datatable.aware <- TRUE
 
 # Record local installation source, commit and dirty status
 install_wd <- getwd()
@@ -125,12 +127,15 @@ set_env <- function() {
     knitr.chunk.echo = FALSE,
     knitr.chunk.message = FALSE,
     knitr.chunk.warning = FALSE,
-    knitr.chunk.error = TRUE,
+    knitr.chunk.error = FALSE,
     readr.show_col_types = FALSE,
     rmarkdown.render.message = FALSE,
     omnipath.logfile = "none"
   )
   knitr::opts_chunk$set(dpi = 300)
+
+  set.seed(0)
+  htmlwidgets::setWidgetIdSeed(0)
 }
 
 run_wd <- NULL
@@ -138,21 +143,24 @@ run_wd <- NULL
 #' Run iTReX Shiny app
 #'
 #' @importFrom shiny runApp
+#' @param test.mode Whether to run the application in test mode.
 #' @export
-run <- function() {
+run <- function(test.mode = FALSE) {
   # Remember pre-Shiny working directory
   utils::assignInMyNamespace("run_wd", getwd())
 
   # Running within working copy using RStudio or
   # > shiny::runApp("inst/shiny")
   # will work iff iTReX is installed as a package.
-  shiny::runApp(system.file("shiny", package = "iTReX"))
+  shiny::runApp(system.file("shiny", package = "iTReX"), test.mode = test.mode)
 }
 
 #' Run iTReX tests
 #'
-#' @param testnames Passed to [shinytest::testApp]
-#' @param quiet Passed to [shinytest::testApp]
+#' @param testnames Passed to [shinytest::testApp()]
+#' @param quiet Passed to [shinytest::testApp()]
+#' @param url URL of test-mode Shiny instance to connect to.
+#'   Requires a customized {shinytest} instance as of {shinytest} v1.5.1.
 #' @examples
 #' test(testnames = c("tabs_home"))
 #' \dontshow{
@@ -161,14 +169,18 @@ run <- function() {
 #' }
 #' @importFrom shiny runApp
 #' @export
-test <- function(testnames = NULL, quiet = FALSE) {
+test <- function(testnames = NULL, quiet = FALSE, url = NULL) {
   # Verify that shinytest and depencies are installed - see Readme.md
   stopifnot(shinytest::dependenciesInstalled())
+
+  if (!is.null(url)) {
+    Sys.setenv(ITREX_TEST_URL = url)
+  }
 
   # Running within working copy using RStudio or
   # > shinytest::testApp("inst/shiny")
   # will work iff iTReX is installed as a package
-  # (see also style_check_test_dir()).
+  # (see also [iTReX:::test_and_update()]).
   shinytest::testApp(system.file("shiny", package = "iTReX"), testnames, quiet)
 
   # Record a new test within working copy using

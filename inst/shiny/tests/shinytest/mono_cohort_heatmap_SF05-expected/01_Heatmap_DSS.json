@@ -2,6 +2,8 @@
   "input": {
     "Amin_select": "var10",
     "Amin_slider": 10,
+    "conc_select": "nM",
+    "conc_text": "Unit",
     "CRA_colcluster": "euclidean",
     "CRA_include_sd": true,
     "CRA_include_zp": true,
@@ -33,7 +35,7 @@
         "iTReX-Demo_MRA_Layout.xlsx"
       ],
       "size": [
-        50813
+        50741
       ],
       "type": [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -150,7 +152,7 @@
     "end_oca": "One-Click Analysis is complete.",
     "layout_table_uploaded": true,
     "MRAcohort_hp": {
-      "src": "[image data sha1: e9fb75cbf7cb7b0c0a4f71b2753cfef171c3eddc]",
+      "src": "[image data sha1: 61a9d17e69259e55f3c29db73b3018d2f916236c]",
       "width": 840,
       "height": 340,
       "alt": "Plot object",

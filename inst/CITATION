@@ -1,0 +1,32 @@
+citHeader("To cite iTReX in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "iTReX: Interactive exploration of mono- and combination therapy dose response profiling data",
+  author   = personList(
+    as.person("Dina ElHarouni"),
+    as.person("Yannick Berker"),
+    as.person("Heike Peterziel"),
+    as.person("Apurva Gopisetty"),
+    as.person("Laura Turunen"),
+    as.person("Sina Kreth"),
+    as.person("Sabine A. Stainczyk"),
+    as.person("Ina Oehme"),
+    as.person("Vilja Pietiäinen"),
+    as.person("Natalie Jäger"),
+    as.person("Olaf Witt"),
+    as.person("Matthias Schlesner"),
+    as.person("Sina Oppermann")
+  ),
+  journal  = "Pharmacological Research",
+  year     = 2022,
+  volume   = 175,
+  pages    = 105996,
+  url      = "https://doi.org/10.1016/j.phrs.2021.105996",
+  textVersion = paste(
+    "ElHarouni D, Berker Y, ..., Schlesner M, Oppermann S (2022)",
+    "iTReX: Interactive exploration of mono- and combination therapy dose response profiling data.",
+    "Pharmacological Research, 175, 105996.",
+    "https://doi.org/10.1016/j.phrs.2021.105996"
+  )
+)

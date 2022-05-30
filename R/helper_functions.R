@@ -114,12 +114,40 @@ rmarkdown_render <- function(rmd_stem, output_file) {
   )
 }
 
+save_rds <- function(objects, output_dir, rds_stem, subdir = "pre_process") {
+  for (name in names(objects)) {
+    if (is.ggplot(objects[[name]])) {
+      # ggplot objects capture the full environment in plot_env:
+      # https://github.com/tidyverse/ggplot2/issues/3619
+      # https://github.com/tidyverse/ggplot2/issues/4056
+      # https://github.com/tidyverse/ggplot2/issues/3994
+      objects[[name]]$plot_env <- rlang::new_environment()
+
+      # Similar information is stored in $mapping and $layers;
+      # these are harder to replace with something meaningful, though:
+      # https://github.com/tidyverse/ggplot2/issues/3994#issuecomment-641481846
+
+      # Saving a copy of a ggplot object as .rds seems like a bad idea, anyway:
+      # https://github.com/tidyverse/ggplot2/issues/3994#issuecomment-642051735
+    }
+  }
+  output_file <- file.path(output_dir, subdir, paste0(rds_stem, ".rds"))
+  saveRDS(objects, output_file)
+}
+
 ## Create iTReX directories
 iTReX.dirs <- function(project_dir, PID) {
   output_dir <- file.path(project_dir, PID)
   dirs <- c(
-    file.path(project_dir, "Heatmap_data", c("QC", "mono", "combo")),
-    file.path(output_dir, c("pre_process", "dose_response_curves"))
+    file.path(
+      project_dir,
+      "Heatmap_data",
+      c("QC", "mono", "combo")
+    ),
+    file.path(
+      output_dir,
+      c("pre_process", "dose_response_curves", "rep_dose_response_curves")
+    )
   )
   lapply(dirs, dir.create, recursive = TRUE, showWarnings = FALSE)
 

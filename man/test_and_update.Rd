@@ -7,7 +7,7 @@
 test_and_update(..., pkg = getwd())
 }
 \arguments{
-\item{...}{Parameters (such as testnames) passed to [shinytest::testApp()].}
+\item{...}{Parameters (such as testnames) passed to \code{\link[shinytest:testApp]{shinytest::testApp()}}.}
 
 \item{pkg}{The directory holding the working copy.}
 }

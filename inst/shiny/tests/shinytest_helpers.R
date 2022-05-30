@@ -1,4 +1,10 @@
-app <- shinytest::ShinyDriver$new("../../", seed = 0, debug = "all")
+url <- Sys.getenv("ITREX_TEST_URL")
+if (nchar(url)) {
+  app <- shinytest::ShinyDriver$new("../..", seed = 0, debug = "all", loadTimeout = 600e3, url = url)
+} else {
+  app <- shinytest::ShinyDriver$new("../..", seed = 0, debug = "all")
+}
+
 options(error = function() print(app$getDebugLog(type = "all")))
 on.exit(options(error = NULL))
 app$setWindowSize(1920, 1080)
@@ -98,7 +104,7 @@ tab2downloads <- list(
   )
 )
 
-get_tab_shapshots <- function(tabset, prefix = "", with_downloads = FALSE,
+get_tab_snapshots <- function(tabset, prefix = "", with_downloads = FALSE,
                               last_i = 0, wait_for_first = FALSE) {
   max_len_path <- 100
   full_prefix <- file.path(
@@ -113,7 +119,7 @@ get_tab_shapshots <- function(tabset, prefix = "", with_downloads = FALSE,
   for (i in seq_along(tab_names)) {
     tabname <- tab_names[i]
     wait <- (i == 1 & wait_for_first) | (i > 1)
-    args <- list(tab = tabname, wait_ = wait, values_ = wait, timeout_ = 60e3)
+    args <- list(tab = tabname, wait_ = wait, values_ = wait, timeout_ = 300e3)
     names(args)[1] <- tabset
     do.call(app$setInputs, args)
 
@@ -152,7 +158,7 @@ get_tab_shapshots <- function(tabset, prefix = "", with_downloads = FALSE,
         }
         readr::write_file(html, full_filename)
       } else if (endsWith(full_filename, ".xlsx")) {
-        iTReX:::clean_zip(full_filename)
+        iTReX:::clean_zip(full_filename) # nolint: undesirable_operator.
       }
     }
   }
@@ -167,7 +173,7 @@ run_hitnet_omics <- function(readout_demo, omics_demo, use_drugbank,
   app$setInputs(upload_reference_samples = TRUE)
   app$uploadFile(reference_samples_file = demo_path("Controls_DKFZ_ST10-min.xlsx"))
   app$snapshot(filename = "00_Home.json")
-  app$setInputs(start_oca = "click", timeout_ = 300e3)
+  app$setInputs(start_oca = "click", timeout_ = 1500e3)
   Sys.sleep(1)
   app$snapshot(filename = "01_Home.json")
 
@@ -213,7 +219,7 @@ run_hitnet_omics <- function(readout_demo, omics_demo, use_drugbank,
       app$uploadFile(Tupload_input = demo_path("Targets_ST03-min.xlsx"))
     }
     app$setInputs(threshold = hitnet_threshold)
-    app$setInputs(HitNet = "click", timeout_ = 300e3)
+    app$setInputs(HitNet = "click", timeout_ = 1500e3)
     Sys.sleep(1)
     app$snapshot(filename = "02_HitNet.json")
   }
@@ -230,8 +236,13 @@ run_hitnet_omics <- function(readout_demo, omics_demo, use_drugbank,
       app$uploadFile(Tupload_inputO = demo_path("Targets_ST03-min.xlsx"))
     }
     app$setInputs(threshold_O = omics_threshold)
-    app$setInputs(Omics = "click", timeout_ = 300e3)
+    app$setInputs(Omics = "click", timeout_ = 1500e3)
     Sys.sleep(1)
     app$snapshot(filename = "03_Omics.json")
   }
+}
+
+shutdown <- function() {
+  app$stop()
+  gc()
 }

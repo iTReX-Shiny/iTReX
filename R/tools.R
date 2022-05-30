@@ -56,7 +56,7 @@ build_manuals <- function(pkg = getwd()) {
   devtools::build_manual(pkg = pkg, path = shiny_docs_path)
   pdf_file <- dir(shiny_docs_path, "^iTReX_[0-9\\.]+\\.pdf$", full.names = TRUE)
   stopifnot(length(pdf_file) == 1)
-  file.rename(pdf_file, file.path(shiny_docs_path, "iTReX-Package-Manual.pdf"))
+  fs::file_move(pdf_file, file.path(shiny_docs_path, "iTReX-Package-Manual.pdf"))
 
   tryCatch(devtools::build_vignettes(pkg = pkg), error = function(cond) {
     warning("build_vignettes() failed, falling back to rmarkdown::render()")
@@ -69,7 +69,7 @@ build_manuals <- function(pkg = getwd()) {
   }
 }
 
-drop_cols <- c("wellID")
+drop_cols <- "wellID"
 layout_cols <- c(
   fileName = "Plate",
   rowID = "Row",
@@ -99,10 +99,7 @@ clean_and_convert_layout <- function(df, is_demo = FALSE) {
 
   missing_cols <- setdiff(layout_cols, colnames(df))
   if (length(missing_cols)) {
-    stop(
-      "Layout file is missing required columns: ",
-      paste(missing_cols, collapse = ", ")
-    )
+    stop("Layout file is missing required columns: ", toString(missing_cols))
   }
 
   # order columns
@@ -112,7 +109,7 @@ clean_and_convert_layout <- function(df, is_demo = FALSE) {
   df <- df[order(df$Plate, df$Row, df$Column), ]
 
   id_cols <- c("Plate", "Row", "Column")
-  if (any(duplicated(df[, id_cols]))) {
+  if (anyDuplicated(df[, id_cols])) {
     stop("Layout contains duplicate (Plate, Row, Column) combinations.")
   }
 
@@ -189,13 +186,13 @@ check_testnames <- function(pkg = getwd()) {
   )
   invalid <- testnames[!grepl(testname_pattern, testnames)]
   if (length(invalid) > 0) {
-    stop("Invalid test names: ", paste(invalid, collapse = ", "))
+    stop("Invalid test names: ", toString(invalid))
   }
 }
 
 clean_xlsx <- function(xlsx_file, is_matrix = NULL, test_path = NULL) {
   if (is.null(is_matrix)) {
-    is_matrix <- grepl("_Readout", xlsx_file)
+    is_matrix <- grepl("_Readout", xlsx_file, fixed = TRUE)
   }
 
   # Constants
@@ -363,7 +360,7 @@ clean_zip <- function(zip_file, my_time = "2021-01-01T00:00:00Z") {
         dirname(filename), sub("_N([^_]+)$", "_\\1", basename(filename))
       )
     }
-    file.rename(matrix_files, vapply(matrix_files, no__n, character(1)))
+    fs::file_move(matrix_files, vapply(matrix_files, no__n, character(1)))
 
     xlsx_matrix_files <- list.files(
       exdir, "\\.xlsx$",
@@ -381,7 +378,7 @@ clean_zip <- function(zip_file, my_time = "2021-01-01T00:00:00Z") {
   tmp_file <- tempfile()
   children <- list.files(exdir, full.names = TRUE)
   zip::zipr(tmp_file, children, include_directories = FALSE)
-  file.rename(tmp_file, zip_file)
+  fs::file_move(tmp_file, zip_file)
 }
 
 #' Prepare demo data (xlsx and zip) in the working copy.
@@ -432,7 +429,7 @@ prep_and_check <- function(pkg = getwd(), strict = FALSE) {
   print(lintr::lint_dir(
     path = pkg,
     pattern = "(?i)\\.(R|Rmd)$",
-    exclusions = "doc/",
+    exclusions = "doc/"
   ))
   print(devtools::check(
     pkg = pkg,
@@ -442,7 +439,7 @@ prep_and_check <- function(pkg = getwd(), strict = FALSE) {
     # https://github.com/wch/r-source/blob/37b76f9/src/library/tools/R/check.R
     remote = strict, # TRUE: "New submission"
     incoming = strict,
-    env_vars = c("_R_CHECK_PKG_SIZES_THRESHOLD_" = if (strict) "5" else "10"),
+    env_vars = c("_R_CHECK_PKG_SIZES_THRESHOLD_" = if (strict) "5" else "250"),
     quiet = TRUE,
     vignettes = TRUE,
   ))
@@ -478,7 +475,7 @@ show_system_deps <- function(pkg = getwd()) {
       "distribution={distribution}&release={release}&suggests={suggests}"
     )
     if (is.null(path)) {
-      body <- paste("Imports:", paste(packages, collapse = ", "))
+      body <- paste("Imports:", toString(packages))
     } else {
       body <- readLines(file.path(path, "DESCRIPTION"))
     }
@@ -542,7 +539,7 @@ show_system_deps <- function(pkg = getwd()) {
     }
     prefix <- gsub("[^ ]+$", "", reqs[1])
     reqs <- sort(unique(reqs))
-    reqs <- reqs[order(grepl("lib", reqs))]
+    reqs <- reqs[order(grepl("lib", reqs, fixed = TRUE))]
     packages <- gsub(prefix, "", reqs)
     command <- paste0("sudo ", prefix, paste(packages, collapse = " "))
     command <- strwrap(command, width = 80 - 2, indent = 3, exdent = 3 + 4)

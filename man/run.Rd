@@ -4,7 +4,10 @@
 \alias{run}
 \title{Run iTReX Shiny app}
 \usage{
-run()
+run(test.mode = FALSE)
+}
+\arguments{
+\item{test.mode}{Whether to run the application in test mode.}
 }
 \description{
 Run iTReX Shiny app

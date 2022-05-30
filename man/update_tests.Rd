@@ -7,7 +7,7 @@
 update_tests(..., pkg = getwd())
 }
 \arguments{
-\item{...}{Parameters passed to [shinytest::snapshotUpdate()].}
+\item{...}{Parameters passed to \code{\link[shinytest:snapshotCompare]{shinytest::snapshotUpdate()}}.}
 
 \item{pkg}{The directory holding the working copy.}
 }

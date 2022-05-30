@@ -1,8 +1,10 @@
 ._*
 .RData
 .Rhistory
+.Rprofile
 .Rproj.user
 *.log
 /debug/
+/drugbank/
 /doc/
 /Meta/

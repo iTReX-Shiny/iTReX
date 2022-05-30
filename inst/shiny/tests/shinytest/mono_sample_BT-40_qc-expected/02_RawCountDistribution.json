@@ -2,6 +2,8 @@
   "input": {
     "Amin_select": "var10",
     "Amin_slider": 10,
+    "conc_select": "nM",
+    "conc_text": "Unit",
     "CRA_colcluster": "euclidean",
     "CRA_include_sd": true,
     "CRA_include_zp": true,
@@ -33,7 +35,7 @@
         "iTReX-Demo_MRA_LayoutAndReadouts_BT-40_ST04.xlsx"
       ],
       "size": [
-        53080
+        53009
       ],
       "type": [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -119,7 +121,93 @@
     ],
     "summary_rows_selected": null,
     "summary_search": "",
-    "summary_state": null,
+    "summary_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
     "TCA": 0,
     "threshold": 2,
     "threshold_O": 2,
@@ -160,7 +248,7 @@
     "readout_matrices_uploaded": false,
     "reference_samples_uploaded": true,
     "screen": {
-      "src": "[image data sha1: d8388982999198e6e07e37796c72536c0e3fed2c]",
+      "src": "[image data sha1: 824c9a39f1ed68cf8a97e369f380eee41db980f7]",
       "width": 1230,
       "height": 400,
       "alt": "Plot object",
@@ -200,45 +288,45 @@
         "vertical": false,
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>empty<\/th>\n      <th>neg<\/th>\n      <th>pos<\/th>\n      <th>STS<\/th>\n      <th>therapy<\/th>\n      <th>TRC<\/th>\n      <th>untreated<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
-          "order": [
-
-          ],
-          "autoWidth": false,
-          "orderClasses": false,
           "columnDefs": [
             {
               "targets": 1,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 2,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 3,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 4,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 5,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 6,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 7,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "orderable": false,
               "targets": 0
             }
           ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
           "ajax": {
             "type": "POST",
             "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"

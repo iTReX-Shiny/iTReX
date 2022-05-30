@@ -2,6 +2,8 @@
   "input": {
     "Amin_select": "var10",
     "Amin_slider": 10,
+    "conc_select": "nM",
+    "conc_text": "Unit",
     "CRA_colcluster": "euclidean",
     "CRA_include_sd": true,
     "CRA_include_zp": true,
@@ -33,7 +35,7 @@
         "iTReX-Demo_MRA_Layout-Imaging-1Plate_ST06.xlsx"
       ],
       "size": [
-        24049
+        23977
       ],
       "type": [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -70,11 +72,11 @@
       ]
     },
     "reference_samples_file": null,
-    "sample": "_BT-40-V3-DS1_ST05",
-    "sample_CRA": "_BT-40-V3-DS1_ST05",
-    "sample_MRA": "_BT-40-V3-DS1_ST05",
-    "sample_net": "_BT-40-V3-DS1_ST05",
-    "sample_omics": "_BT-40-V3-DS1_ST05",
+    "sample": "BT-40-V3-DS1_ST05",
+    "sample_CRA": "BT-40-V3-DS1_ST05",
+    "sample_MRA": "BT-40-V3-DS1_ST05",
+    "sample_net": "BT-40-V3-DS1_ST05",
+    "sample_omics": "BT-40-V3-DS1_ST05",
     "screen_type": "Monotherapy",
     "screen_type_O": "Monotherapy",
     "start_oca": 1,
@@ -107,7 +109,93 @@
     ],
     "summary_rows_selected": null,
     "summary_search": "",
-    "summary_state": null,
+    "summary_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
     "TCA": 0,
     "threshold": 2,
     "threshold_O": 2,
@@ -148,7 +236,7 @@
     "readout_matrices_uploaded": true,
     "reference_samples_uploaded": false,
     "screen": {
-      "src": "[image data sha1: b083aa9cd2400d68ac3a9c8f3c117647abe77082]",
+      "src": "[image data sha1: b0d55244c8a228812dbac92e5d0c8aa03362fc4c]",
       "width": 1230,
       "height": 400,
       "alt": "Plot object",
@@ -188,45 +276,45 @@
         "vertical": false,
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>BzCl<\/th>\n      <th>empty<\/th>\n      <th>neg<\/th>\n      <th>pos<\/th>\n      <th>therapy<\/th>\n      <th>TRC<\/th>\n      <th>untreated<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
-          "order": [
-
-          ],
-          "autoWidth": false,
-          "orderClasses": false,
           "columnDefs": [
             {
               "targets": 1,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 2,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 3,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 4,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 5,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 6,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 7,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "orderable": false,
               "targets": 0
             }
           ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
           "ajax": {
             "type": "POST",
             "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"

@@ -234,7 +234,10 @@ iTRex is able to process data from any plate layout format (e.g; 96, 384, 1536 .
 
 **5-** Select the type of readout measures of the screen: **"Cell Viability"** or **"Cell Death"**.
 
-**6-** Select the preferred DSS activity threshold (A~min~) setting.
+**6-** Select the concentration unit used in the screen layout uploaded.
+**"Nanomolar (nM)"** is the default setting of iTReX according to the available demo layout. There are multiple alternative options provided such as **"Molar (M)"** or **"Gray (Gy)"**, or a **"Custom Unit"** can be selected and any used concentration unit can be typed into a text box.
+
+**7-** Select the preferred DSS activity threshold (A~min~) setting.
 **"Variable 10% of Imax"** is the default recommended setting of iTReX. There are multiple alternative options provided such as:
 <br>
 
@@ -247,7 +250,7 @@ iTRex is able to process data from any plate layout format (e.g; 96, 384, 1536 .
 **"Flexible threshold"**: By setting this option a slider bar will appear, where you can set any other value according to the biological hypothesis / interest of the project.
 <br>
 
-**6- Start of Analysis:**
+**8- Start of Analysis:**
 <br>
 The analysis can be performed in **"One-Click"** or **"Stepwise"**.
 
@@ -425,7 +428,7 @@ Heatmaps are generated for the whole uploaded cohort as demonstrated below:
 show_test_image("mono_cohort_heatmap", "01_Heatmap")
 ```
 
-The clustering distance can be adjusted to the method of interest. Moreover, checkboxes are available to visualize the sDSS~asym~ heatmap if reference sample(s) is/are used, the therapy standard deviation (SDs) and plate quality control zprime.
+The clustering distance can be adjusted to the method of interest. Moreover, checkboxes are available to visualize the sDSS~asym~ heatmap if reference sample(s) have been uploaded, the therapy standard deviations (SDs), and the quality control z-prime (z') values.
 
 The plot width and height can also be adjusted using the slider bar.
 

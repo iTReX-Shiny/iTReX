@@ -8,7 +8,6 @@
 #' Compute a Drug Sensitivity Score (DSS)
 #'
 #' @importFrom bayestestR area_under_curve
-#' @importFrom stringr str_replace
 #' @importFrom zeallot %<-%
 #'
 #' @param pars_table can be a data.frame of (in that order!)
@@ -67,7 +66,7 @@ compute_dss <- function(pars_table,
     pars <- as.matrix(pars_table[row, ])
 
     # sanitize input data
-    pars <- as.numeric(str_replace(pars, ",", "."))
+    pars <- as.numeric(gsub(",", ".", pars, fixed = TRUE))
 
     # parameter checking
     if (sum(is.na(pars))) {

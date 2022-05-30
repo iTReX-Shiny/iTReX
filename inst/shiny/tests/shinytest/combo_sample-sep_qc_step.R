@@ -8,9 +8,11 @@ app$setInputs(type_of_analysis = "StepA")
 app$snapshot(filename = "00_Home.json")
 
 app$setInputs(iTReX = "QCN-mod")
-app$setInputs(viewQCreport = "click", timeout_ = 300e3)
+app$setInputs(viewQCreport = "click", timeout_ = 1500e3)
 
-last_i <- get_tab_shapshots("QC_mod")
+last_i <- get_tab_snapshots("QC_mod")
 
 number <- formatC(last_i + 1, width = 2, flag = "0")
 app$snapshotDownload("report", filename = paste0(number, "_Report.html"))
+
+shutdown()

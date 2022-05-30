@@ -1,7 +1,7 @@
 Type: Package
 Package: iTReX
 Title: interactive Therapy Response eXploration
-Version: 1.1.1
+Version: 1.2.0
 Authors@R:
   c(person(given = "Dina",
            family = "ElHarouni",
@@ -32,13 +32,14 @@ BugReports: https://github.com/iTReX-Shiny/iTReX/issues
 Depends: R (>= 3.5.0), shiny
 biocViews: ShinyApps, Network
 Imports: ComplexHeatmap, imageHTS, OmnipathR, base64enc, bayestestR, circlize,
-    data.table, desc, dplyr, DT, ggplot2, ggpubr, git2r, glue, htmlwidgets,
-    igraph, knitr, nplr, openxlsx, patchwork, plotly, purrr, readr, readxl,
-    rlang, rmarkdown, shinyjs, shinythemes, shinyWidgets, stats, stringr, tools,
-    tibble, tidyr, utils, zeallot, zip
-Suggests: BiocCheck, Cairo, curl, devtools, httr, kableExtra, lintr, processx,
-    remotes, rmdformats, shinytest, styler, testthat (>= 3.0.0)
+    data.table, desc, dplyr, DT, future, ggplot2, ggpubr, git2r, glue,
+    htmlwidgets, igraph, knitr, nplr, openxlsx, patchwork, plotly, purrr, readr,
+    readxl, rlang, rmarkdown, shinyjs, shinythemes, shinyWidgets, stats, stringr,
+    tools, tibble, tidyr, utils, zeallot, zip
+Suggests: BiocCheck, Cairo, curl, devtools, fs, httr, kableExtra, lintr,
+    processx, remotes, rmdformats, shinytest, styler, testthat (>= 3.0.0)
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.0
 Config/testthat/edition: 3
 VignetteBuilder: knitr
