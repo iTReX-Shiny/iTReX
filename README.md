@@ -26,7 +26,7 @@ Regardless of your operating system, you will need at least:
 1. The `pandoc` document converter ([pandoc.org](https://pandoc.org/)), version 1.12.3 or later.
    <!-- https://github.com/rstudio/rmarkdown/blob/69e6f983/R/render.R#L316-L320 -->
 
-   `pandoc` is bundled in the free *RStudio Desktop* ([www.rstudio.com](https://www.rstudio.com/products/rstudio/#rstudio-desktop)).\
+   `pandoc` is bundled in the free _RStudio Desktop_ ([www.rstudio.com](https://www.rstudio.com/products/rstudio/#rstudio-desktop)).\
    (You may need to add the `RStudio/bin/pandoc` folder to your `PATH` manually.)
 
 Optional dependencies include the following:
@@ -52,7 +52,7 @@ Optional dependencies include the following:
 - On Ubuntu 20.04, you may use
 
    ```bash
-   sudo apt-get install -y git make pandoc perl libcairo2-dev \
+   sudo apt-get install -y cmake git make pandoc perl libcairo2-dev \
        libcurl4-openssl-dev libgit2-dev libglpk-dev libgmp3-dev libicu-dev \
        libpng-dev libssh2-1-dev libssl-dev libxml2-dev zlib1g-dev
    ```
@@ -62,7 +62,7 @@ Optional dependencies include the following:
 - To run `shinytest`s, the following may be required:
 
    ```bash
-   sudo apt-get install -y git gsfonts imagemagick make pandoc perl \
+   sudo apt-get install -y cmake git gsfonts imagemagick make pandoc perl \
        libcairo2-dev libcurl4-openssl-dev libfontconfig1-dev libfreetype6-dev \
        libgit2-dev libglpk-dev libgmp3-dev libicu-dev libmagick++-dev \
        libpng-dev libssh2-1-dev libssl-dev libxml2-dev zlib1g-dev

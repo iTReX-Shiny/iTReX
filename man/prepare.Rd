@@ -9,7 +9,7 @@ prepare(pkg = getwd(), manual = TRUE)
 \arguments{
 \item{pkg}{The directory holding the working copy.}
 
-\item{manual}{Whether to run [build_manuals()].}
+\item{manual}{Whether to run \code{\link[=build_manuals]{build_manuals()}}.}
 }
 \description{
 Prepare working copy for commit.

@@ -47,10 +47,7 @@ platePlotControl <- function(screenData, plotPlate = "all", plotType = "layout",
     if (is.null(limits)) {
       limits <- c(0, 2)
     }
-    matPlate <- mutate(matPlate, normVal = ifelse(.data$normVal <
-      limits[1], limits[1], ifelse(.data$normVal > limits[2],
-      limits[2], .data$normVal
-    )))
+    matPlate <- mutate(matPlate, normVal = pmax(limits[1], pmin(limits[2], .data$normVal)))
     if (ifCorrected) {
       if (!"normVal.cor" %in% colnames(matPlate)) {
         stop("No edge-corrected viability found, please run edge effect correction first")
@@ -92,10 +89,7 @@ platePlotControl <- function(screenData, plotPlate = "all", plotType = "layout",
     if (is.null(limits)) {
       limits <- c(-3, 3)
     }
-    matPlate <- mutate(matPlate, zscore = ifelse(.data$zscore <
-      limits[1], limits[1], ifelse(.data$zscore > limits[2],
-      limits[2], .data$zscore
-    )))
+    matPlate <- mutate(matPlate, zscore = pmax(limits[1], pmin(limits[2], .data$zscore)))
     plotList <- lapply(plateList, function(plateName) {
       p <- filter(matPlate, .data$Plate == plateName) %>%
         ggplot(aes(x = .data$Column, y = .data$Row, fill = .data$zscore)) +
@@ -129,10 +123,7 @@ platePlotControl <- function(screenData, plotPlate = "all", plotType = "layout",
     if (is.null(limits)) {
       limits <- c(0, 2)
     }
-    matPlate <- mutate(matPlate, normVal = ifelse(.data$normVal <
-      limits[1], limits[1], ifelse(.data$normVal > limits[2],
-      limits[2], .data$normVal
-    )))
+    matPlate <- mutate(matPlate, normVal = pmax(limits[1], pmin(limits[2], .data$normVal)))
     plotList <- lapply(plateList, function(plateName) {
       p <- filter(matPlate, .data$Plate == plateName) %>%
         ggplot(aes(x = .data$Column, y = .data$Row, fill = .data$edgeFactor)) +
@@ -181,8 +172,8 @@ plotRawCountc <- function(screenData, topN = NULL, ifLog10 = FALSE) {
   }
   plotTab <- mutate(plotTab, Plate = factor(.data$Plate, levels = rev(unique(.data$Plate))))
   g <- ggplot(plotTab, aes(x = .data$Plate, y = .data$Readout)) +
-    geom_jitter(
-      width = 0.3,
+    geom_point(
+      position = position_jitter(width = 0.3, seed = 0),
       alpha = 0.3, color = "grey50"
     ) +
     geom_boxplot(
@@ -287,10 +278,7 @@ platePlotc <- function(screenData, plotPlate = "all", plotType = "layout",
     if (is.null(limits)) {
       limits <- c(0, 2)
     }
-    matPlate <- mutate(matPlate, normVal = ifelse(.data$normVal <
-      limits[1], limits[1], ifelse(.data$normVal > limits[2],
-      limits[2], .data$normVal
-    )))
+    matPlate <- mutate(matPlate, normVal = pmax(limits[1], pmin(limits[2], .data$normVal)))
     if (ifCorrected) {
       if (!"normVal.cor" %in% colnames(matPlate)) {
         stop("No edge-corrected viability found, please run edge effect correction first")
@@ -335,10 +323,7 @@ platePlotc <- function(screenData, plotPlate = "all", plotType = "layout",
     if (is.null(limits)) {
       limits <- c(-3, 3)
     }
-    matPlate <- mutate(matPlate, zscore = ifelse(.data$zscore <
-      limits[1], limits[1], ifelse(.data$zscore > limits[2],
-      limits[2], .data$zscore
-    )))
+    matPlate <- mutate(matPlate, zscore = pmax(limits[1], pmin(limits[2], .data$zscore)))
     plotList <- lapply(plateList, function(plateName) {
       p <- filter(matPlate, .data$Plate == plateName) %>%
         ggplot(aes(x = .data$Column, y = .data$Row, fill = .data$zscore)) +
@@ -375,10 +360,7 @@ platePlotc <- function(screenData, plotPlate = "all", plotType = "layout",
     if (is.null(limits)) {
       limits <- c(0, 2)
     }
-    matPlate <- mutate(matPlate, normVal = ifelse(.data$normVal <
-      limits[1], limits[1], ifelse(.data$normVal > limits[2],
-      limits[2], .data$normVal
-    )))
+    matPlate <- mutate(matPlate, normVal = pmax(limits[1], pmin(limits[2], .data$normVal)))
     plotList <- lapply(plateList, function(plateName) {
       p <- filter(matPlate, .data$Plate == plateName) %>%
         ggplot(aes(x = .data$Column, y = .data$Row, fill = .data$edgeFactor)) +
@@ -415,10 +397,10 @@ platePlotc <- function(screenData, plotPlate = "all", plotType = "layout",
 }
 
 ## plotting dose response curves
-plot.iscreen <- function(drdata,
+plot.iscreen <- function(drdata, conc_unit,
                          curve = NA, error = NA, IC50 = NA, title = "") {
   dplot <- ggplot(drdata, aes(x = .data$dose, y = .data$IC * 100)) +
-    (if (!is.na(curve)) {
+    (if (!all(is.na(curve))) {
       geom_ribbon(
         data = curve,
         mapping = aes(
@@ -432,7 +414,7 @@ plot.iscreen <- function(drdata,
       )
     }) +
     geom_point(color = "black", size = 2.5) +
-    (if (!is.na(curve)) {
+    (if (!all(is.na(curve))) {
       geom_line(
         data = curve,
         mapping = aes(x = .data$dose, y = .data$response),
@@ -440,7 +422,7 @@ plot.iscreen <- function(drdata,
         size = 2.5,
       )
     }) +
-    labs(x = "Concentration (nM)", y = "% Inhibition", size = 18) +
+    labs(x = paste0("Concentration (", conc_unit, ")"), y = "% Inhibition", size = 18) +
     ggtitle(title) +
     coord_cartesian(ylim = c(-50, 150)) +
     theme(
@@ -491,17 +473,19 @@ plot_cohort_heatmap <- function(input, output, mod, heatmap_dir) {
   if (length(files) == 0) {
     return()
   }
+  debug_save(files)
 
   plot_sdss <- input[[paste0(mod, "_sdss")]] && !is.null(input$reference_samples_file)
   dss_label <- if (plot_sdss) "sDSS_asym" else "DSS_asym"
 
   tbl <- lapply(files, readxl::read_xlsx)
+  debug_save(tbl)
   df1 <- as.data.frame(do.call(rbind, tbl))
   df_xDSS <- df1[, c("Drug.Name", dss_label, "analysis")]
   xDSS_hp <- df_xDSS %>% tidyr::spread(.data$analysis, dss_label)
-  xDSS_m <- as.matrix(xDSS_hp[, -1])
+  xDSS_m <- as.matrix(xDSS_hp[, -1, drop = FALSE])
   rownames(xDSS_m) <- xDSS_hp[, 1]
-  xDSS_m <- xDSS_m[rowSums(is.na(xDSS_m)) != ncol(xDSS_m), ]
+  xDSS_m <- xDSS_m[rowSums(is.na(xDSS_m)) != ncol(xDSS_m), , drop = FALSE]
   xDSS_m <- t(xDSS_m)
   debug_save(xDSS_m)
   row_cluster <- input[[paste0(mod, "_rowcluster")]]
@@ -510,12 +494,19 @@ plot_cohort_heatmap <- function(input, output, mod, heatmap_dir) {
   if (input[[paste0(mod, "_include_zp")]]) {
     zprime <- data.frame()
     pids <- rownames(xDSS_m)
-    plate_zpr <- t(matrix(unlist(lapply(pids, function(pid) {
+    plate_zpr <- do.call(rbind, lapply(pids, function(pid) {
       pid_qc_file <- file.path(heatmap_dir, "..", "QC", paste0(pid, "_QC.xlsx"))
       pid_qc_df <- openxlsx::read.xlsx(pid_qc_file, rowNames = TRUE)
-      zprime_columns <- grepl("\\d+_zprime_r$", rownames(pid_qc_df))
-      as.numeric(pid_qc_df[zprime_columns, 1])
-    })), ncol = length(pids)))
+      zprime_columns <- endsWith(rownames(pid_qc_df), "_zprime_r")
+      zprime_names <- gsub("_zprime_r$", "", rownames(pid_qc_df)[zprime_columns])
+      zprime_names <- paste("Plate", zprime_names)
+      zprime_names <- gsub("Plate screen", "Screen", zprime_names, fixed = TRUE)
+
+      zprime_values <- as.numeric(pid_qc_df[zprime_columns, 1])
+      names(zprime_values) <- zprime_names
+      zprime_values
+    }))
+    rownames(plate_zpr) <- pids
     debug_save(plate_zpr)
 
     # assignment of an object of class “expression” is not valid for @‘name’
@@ -523,10 +514,9 @@ plot_cohort_heatmap <- function(input, output, mod, heatmap_dir) {
     # > plate_zpr_label <- expression("z'"[r])
 
     # gt_render requires gridtext and complicates vertical alignment.
-    # > plate_zpr_label <- ComplexHeatmap::gt_render("Plate z'<sub>r</sub>")
+    # > plate_zpr_label <- ComplexHeatmap::gt_render("z'<sub>r</sub>")
 
-    plate_zpr_label <- "Plate z'"
-    colnames(plate_zpr) <- paste("Plate", seq_len(ncol(plate_zpr)))
+    plate_zpr_label <- "z'"
 
     row_ha <- ComplexHeatmap::rowAnnotation(
       plate_zpr = plate_zpr,
@@ -546,7 +536,13 @@ plot_cohort_heatmap <- function(input, output, mod, heatmap_dir) {
     row_ha <- NULL
   }
 
-  if (input[[paste0(mod, "_include_sd")]]) {
+  more_than_one_sample <- nrow(xDSS_m) > 1
+  shinyjs::toggleState(paste0(mod, "_include_sd"), more_than_one_sample)
+  if (!more_than_one_sample) {
+    shiny::updateCheckboxInput(inputId = paste0(mod, "_include_sd"), value = FALSE)
+  }
+
+  if (input[[paste0(mod, "_include_sd")]] && more_than_one_sample) {
     xdss_sd <- apply(xDSS_m, 2, sd, na.rm = TRUE)
     debug_save(xdss_sd)
 

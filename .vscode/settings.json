@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "NAMESPACE": "makefile",
+    },
+    "[r][rmd][javascript]": {
+        "editor.rulers": [
+            80,
+        ],
+        "editor.tabSize": 2,
+        "files.insertFinalNewline": true,
+    },
+}

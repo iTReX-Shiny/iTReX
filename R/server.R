@@ -39,7 +39,7 @@ read_matrix <- function(filename) {
       "){4,}$"
     ), multiline = TRUE)
     matrix_matches <- stringr::str_match(file_contents, matrix_pattern)
-    if (is.null(matrix_matches) || any(is.na(matrix_matches))) {
+    if (is.null(matrix_matches) || anyNA(matrix_matches)) {
       stop("File ", filename, " does not match expected pattern.")
     }
     read.csv(
@@ -69,7 +69,7 @@ read_inputs <- function(input, project_dir) {
   if (is_single_sample_and_file) {
     pids <- unique(layout_table$Sample)
     if (length(pids) > 1) {
-      stop("Too many samples found in file: ", paste(pids, collapse = ", "))
+      stop("Too many samples found in file: ", toString(pids))
     }
     readouts <- NULL
   } else {
@@ -93,7 +93,7 @@ read_inputs <- function(input, project_dir) {
       readouts <- data.frame(path = path)
       readouts$basename <- input$readout_matrices_file$name
       readouts$sample_id <- tools::file_path_sans_ext(
-        sub("^iTReX-Demo_MRA_Readout-Imaging", "", readouts$basename)
+        sub("^iTReX-Demo_MRA_Readout-Imaging_", "", readouts$basename)
       )
     }
     pids <- unique(readouts$sample_id)
@@ -153,8 +153,8 @@ fill_layout_table <- function(input, layout_table, readouts, PID) {
       if (!all(startsWith(all_names_matrix, readout_table$PlateDisplayName)) &&
         !all(startsWith(all_names_matrix, readout_table$PlateDisplayNameOld))) {
         stop(glue::glue(
-          "Suffixes of matrix input files (after '_' in file names) ",
-          "do not match Plate IDs in the layout for sample '{PID}''."
+          "Suffixes of matrix input files (after final '_' in file names) ",
+          "do not match Plate IDs in the layout for sample '{PID}'."
         ))
       }
     }
@@ -325,6 +325,8 @@ waterfall_with_hover_drcs <- function(output_dir, df) {
 }
 
 itrex_server <- function(input, output, session) {
+  itrex_env <- rlang::new_environment()
+
   query_modal <- modalDialog(
     title = "iTReX Disclaimer and Terms of Use",
     tags$b("Disclaimer"),
@@ -400,12 +402,6 @@ itrex_server <- function(input, output, session) {
     observeEvent(input$decline, session$close())
   })
 
-  # Remove DataTable states (which include time!) from shinytest JSON snapshots
-  dts <- c("summary", "summary2", "parTable", "parTable2", "parTablecombo")
-  for (dt in dts) {
-    shiny::snapshotPreprocessInput(paste0(dt, "_state"), function(v) NULL)
-  }
-
   observeEvent(input$number_of_samples, {
     is_single_sample <- input$number_of_samples == "single_sample"
 
@@ -456,6 +452,12 @@ itrex_server <- function(input, output, session) {
   observeEvent(input$Amin_select, {
     is_other_amin <- input$Amin_select == "other"
     shinyjs::toggle("Amin_slider", anim = TRUE, condition = is_other_amin)
+  })
+
+  shinyjs::hide("conc_text")
+  observeEvent(input$conc_select, {
+    is_other_conc <- input$conc_select == "other"
+    shinyjs::toggle("conc_text", anim = TRUE, condition = is_other_conc)
   })
 
   output$layout_table_uploaded <- reactive(!is.null(input$layout_table_file))
@@ -516,16 +518,29 @@ itrex_server <- function(input, output, session) {
 
             incProgress(0.5 / n_pid, detail = paste0(progr_text, "MRA/CRA"))
 
+            if (length(unique(mono_data$Replicate)) > 1) {
+              mono_rep_data <- mono_data
+              mono_rep_data$Treatment <- paste0(mono_rep_data$Treatment, "_rep", mono_rep_data$Replicate)
+
+              MRAlist_rep <- MRA.mod(
+                input,
+                drdata = mono_rep_data, output_dir = output_dir,
+                control_dir = control_dir, PID = PID, run_type = "mono_rep",
+                heatmap_dir = heatmap_dir, itrex_env = itrex_env
+              )
+            }
+
             MRAlist <- MRA.mod(
               input,
               drdata = mono_data, output_dir = output_dir,
               control_dir = control_dir, PID = PID, run_type = "mono",
-              heatmap_dir = heatmap_dir
+              heatmap_dir = heatmap_dir, itrex_env = itrex_env
             )
 
             nplr_inhibitor <- MRAlist$nplr_inhibitor
             wb <- MRAlist$wb
-            saveRDS(MRAlist, file.path(output_dir, "pre_process", paste0(PID, "_mono.rds")))
+            save_rds(MRAlist, output_dir, paste0(PID, "_mono"))
+            itrex_env[[PID]]$datapoint_mono <- MRAlist
 
             t <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_mono.xlsx")))
 
@@ -533,7 +548,6 @@ itrex_server <- function(input, output, session) {
             t <- data.table::as.data.table(t)
             ordered <- t[order(-t$DSS_asym), ]
             ordered$index <- seq.int(n, 1)
-
 
             rmarkdown_render("DSS_interactive", file.path(output_dir, paste0(PID, "_DSS_interactive.html")))
 
@@ -572,12 +586,13 @@ itrex_server <- function(input, output, session) {
                 input,
                 drdata = combo_data, output_dir = output_dir,
                 control_dir = control_dir, PID = PID, run_type = "combo",
-                heatmap_dir = heatmap_dir
+                heatmap_dir = heatmap_dir, itrex_env = itrex_env
               )
 
               nplr_inhibitor_combo <- MRAlist$nplr_inhibitor
               wb_combo <- MRAlist$wb
-              saveRDS(MRAlist, file.path(output_dir, "pre_process", paste0(PID, "_combo.rds")))
+              save_rds(MRAlist, output_dir, paste0(PID, "_combo"))
+              itrex_env[[PID]]$datapoint_combo <- MRAlist
 
               data_n <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_combo.xlsx")))
               data_n$DSS_asym <- as.numeric(data_n$DSS_asym)
@@ -592,21 +607,25 @@ itrex_server <- function(input, output, session) {
 
               rmarkdown_render("DSS_Hits_Waterfall_combo", file.path(output_dir, paste0(PID, "_DSS_Hits_Waterfall_combo.html")))
 
-              MRAlist <- readRDS(file.path(output_dir, "pre_process", paste0(PID, "_mono.rds")))
+              MRAlist <- itrex_env[[PID]]$datapoint_mono
 
               dir.create(file.path(output_dir, "synergy_plots"))
 
               nplr_inhibitor <- MRAlist$nplr_inhibitor
               splitlist <- MRAlist$splitlist
 
-              combolist <- readRDS(file.path(output_dir, "pre_process", paste0(PID, "_combo.rds")))
+              combolist <- itrex_env[[PID]]$datapoint_combo
               nplr_inhibitor2 <- combolist$nplr_inhibitor
               splitlist2 <- combolist$splitlist
 
               nplr_inhibitor <- rbind(nplr_inhibitor, nplr_inhibitor2)
               splitlist <- c(splitlist, splitlist2)
 
-              CRAlist <- CRA.mod(combo_nplr = nplr_inhibitor, output_dir = output_dir, splitlist = splitlist, PID = PID)
+              CRAlist <- CRA.mod(
+                input,
+                combo_nplr = nplr_inhibitor, output_dir = output_dir, splitlist = splitlist, PID = PID,
+                itrex_env = itrex_env
+              )
 
               Synergy_df <- CRAlist$Synergy_df
               wb <- CRAlist$wb
@@ -638,7 +657,8 @@ itrex_server <- function(input, output, session) {
     paste0("iTReX-Results_", format(Sys.time(), "%Y-%m-%d-%H-%M-%S"), "_v", version(), ".zip"),
     function(file) {
       zip::zipr(file, dir(project_dir, full.names = TRUE))
-    }
+    },
+    contentType = "application/zip",
   )
 
   ## --  One click analysis visualization ------------------------------------------------------------------------------------------------ ##
@@ -649,9 +669,10 @@ itrex_server <- function(input, output, session) {
       {
         PID <- input$sample
         output_dir <- file.path(project_dir, PID)
+
         screendata <- read.csv(file.path(output_dir, "pre_process", paste0(PID, "_screenData.csv")))
         combo_data <- screendata[!is.na(screendata$AddOn), ]
-        QCN_list <- readRDS(file.path(output_dir, "pre_process", "QCN_list.rds"))
+        QCN_list <- itrex_env[[PID]]$QCN_list
 
         output_screen_summary(output, QCN_list)
       },
@@ -666,12 +687,19 @@ itrex_server <- function(input, output, session) {
       {
         PID <- input$sample_MRA
         output_dir <- file.path(project_dir, PID)
+
         t <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_mono.xlsx")))
-        MRA_dss_list <- readRDS(file.path(output_dir, "pre_process", "MRA_dss_list.rds"))
-        MRA_sdss_list <- readRDS(file.path(output_dir, "pre_process", "MRA_sdss_list.rds"))
+        t_rep <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_mono_rep.xlsx")))
+        MRA_dss_list <- itrex_env[[PID]]$MRA_dss_list
+        MRA_sdss_list <- itrex_env[[PID]]$MRA_sdss_list
 
         output$parTable <- DT::renderDataTable({
           DT::datatable(t) %>%
+            DT::formatRound(setdiff(3:23, 10:11), digits = 2)
+        })
+
+        output$parTable_rep <- DT::renderDataTable({
+          DT::datatable(t_rep) %>%
             DT::formatRound(setdiff(3:23, 10:11), digits = 2)
         })
 
@@ -715,10 +743,11 @@ itrex_server <- function(input, output, session) {
       {
         PID <- input$sample_CRA
         output_dir <- file.path(project_dir, PID)
+
         t <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_combo.xlsx")))
         Synergy_df <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_CRA.xlsx")))
-        CRA_dss_list <- readRDS(file.path(output_dir, "pre_process", "CRA_dss_list.rds"))
-        CRA_report_list <- readRDS(file.path(output_dir, "pre_process", "CRA_report_list.rds"))
+        CRA_dss_list <- itrex_env[[PID]]$CRA_dss_list
+        CRA_report_list <- itrex_env[[PID]]$CRA_report_list
 
         output$parTable2 <- DT::renderDataTable({
           DT::datatable(t) %>%
@@ -810,6 +839,7 @@ itrex_server <- function(input, output, session) {
         withProgress(message = "MRA-mod, this may take few minutes", value = 0.2, {
           PID <- input$sample_MRA
           output_dir <- file.path(project_dir, PID)
+
           heatmap_dir <- file.path(project_dir, "Heatmap_data", "mono")
 
           # Healthy control reference
@@ -824,18 +854,33 @@ itrex_server <- function(input, output, session) {
 
           setProgress(0.2, detail = "Saving Curves")
 
+          if (length(unique(mono_data$Replicate)) > 1) {
+            mono_rep_data <- mono_data
+            mono_rep_data$Treatment <- paste0(mono_rep_data$Treatment, "_rep", mono_rep_data$Replicate)
+
+            MRAlist_rep <- MRA.mod(
+              input,
+              drdata = mono_rep_data, output_dir = output_dir,
+              control_dir = control_dir, PID = PID, run_type = "mono_rep",
+              heatmap_dir = heatmap_dir, itrex_env = itrex_env
+            )
+          }
+
           MRAlist <- MRA.mod(
             input,
             drdata = mono_data, output_dir = output_dir,
             control_dir = control_dir, PID = PID, run_type = "mono",
-            heatmap_dir = heatmap_dir
+            heatmap_dir = heatmap_dir, itrex_env = itrex_env
           )
 
           setProgress(0.5, detail = "Finishing")
 
           nplr_inhibitor <- MRAlist$nplr_inhibitor
           wb <- MRAlist$wb
-          saveRDS(MRAlist, file.path(output_dir, "pre_process", paste0(PID, "_mono.rds")))
+          wb_rep <- MRAlist_rep$wb
+          nplr_inhibitor_rep <- MRAlist_rep$nplr_inhibitor
+          save_rds(MRAlist, output_dir, paste0(PID, "_mono"))
+          itrex_env[[PID]]$datapoint_mono <- MRAlist
 
           setProgress(1.0, detail = "Done")
         })
@@ -844,10 +889,23 @@ itrex_server <- function(input, output, session) {
           DT::datatable(nplr_inhibitor) %>%
             DT::formatRound(setdiff(3:23, 10:11), digits = 2)
         })
+
+        output$parTable_rep <- DT::renderDataTable({
+          DT::datatable(nplr_inhibitor_rep) %>%
+            DT::formatRound(setdiff(3:23, 10:11), digits = 2)
+        })
+
         output$xls_table <- downloadHandler(
           filename = paste0("spreadsheet_v", version(), ".xlsx"),
           content = function(file) {
             openxlsx::saveWorkbook(wb, file)
+          }
+        )
+
+        output$xls_table_rep <- downloadHandler(
+          filename = paste0("spreadsheet_v", version(), "_rep.xlsx"),
+          content = function(file) {
+            openxlsx::saveWorkbook(wb_rep, file)
           }
         )
 
@@ -1022,6 +1080,10 @@ itrex_server <- function(input, output, session) {
           downloadButton("xls_table", "Download Spreadsheet")
         })
 
+        output$download_MRAtable_rep <- renderUI({
+          downloadButton("xls_table_rep", "Download Spreadsheet")
+        })
+
         output$download_ihp <- renderUI({
           downloadButton("Heathtml", "Download Heatmap")
         })
@@ -1065,6 +1127,7 @@ itrex_server <- function(input, output, session) {
         withProgress(message = "CRA-mod, this may take few minutes", value = 0.2, {
           PID <- input$sample_CRA
           output_dir <- file.path(project_dir, PID)
+
           heatmap_dir <- file.path(project_dir, "Heatmap_data", "combo")
 
           ## Healthy control reference
@@ -1084,14 +1147,15 @@ itrex_server <- function(input, output, session) {
             input,
             drdata = combo_data, output_dir = output_dir,
             control_dir = control_dir, PID = PID, run_type = "combo",
-            heatmap_dir = heatmap_dir
+            heatmap_dir = heatmap_dir, itrex_env = itrex_env
           )
 
           setProgress(0.6, detail = "Finishing")
 
           nplr_inhibitor_combo <- MRAlist$nplr_inhibitor
           wb_combo <- MRAlist$wb
-          saveRDS(MRAlist, file.path(output_dir, "pre_process", paste0(PID, "_combo.rds")))
+          save_rds(MRAlist, output_dir, paste0(PID, "_combo"))
+          itrex_env[[PID]]$datapoint_combo <- MRAlist
 
           setProgress(1.0, detail = "Done")
         })
@@ -1189,14 +1253,14 @@ itrex_server <- function(input, output, session) {
 
           setProgress(0.3, detail = "Generating Spreadsheet(s)")
 
-          MRAlist <- readRDS(file.path(output_dir, "pre_process", paste0(PID, "_mono.rds")))
+          MRAlist <- itrex_env[[PID]]$datapoint_mono
 
           dir.create(file.path(output_dir, "synergy_plots"))
 
           nplr_inhibitor <- MRAlist$nplr_inhibitor
           splitlist <- MRAlist$splitlist
 
-          combolist <- readRDS(file.path(output_dir, "pre_process", paste0(PID, "_combo.rds")))
+          combolist <- itrex_env[[PID]]$datapoint_combo
           nplr_inhibitor2 <- combolist$nplr_inhibitor
           splitlist2 <- combolist$splitlist
 
@@ -1205,7 +1269,11 @@ itrex_server <- function(input, output, session) {
 
           setProgress(0.6, detail = "Generating Curves")
 
-          CRAlist <- CRA.mod(combo_nplr = nplr_inhibitor, output_dir = output_dir, splitlist = splitlist, PID = PID)
+          CRAlist <- CRA.mod(
+            input,
+            combo_nplr = nplr_inhibitor, output_dir = output_dir, splitlist = splitlist, PID = PID,
+            itrex_env = itrex_env
+          )
 
           setProgress(1.0, detail = "Done")
         })
@@ -1334,13 +1402,6 @@ itrex_server <- function(input, output, session) {
         output$download_CRAtable <- renderUI({
           downloadButton("xls_tablecombo", "Download Spreadsheet")
         })
-
-        output$dcDSShtml_combo <- downloadHandler(
-          filename = paste0("dcDSS_asym_hits_v", version(), ".html"),
-          content = function(file) {
-            rmarkdown_render("DSS_Hits_Waterfall_combo", file)
-          }
-        )
 
         output$comboreport <- downloadHandler(
           filename = paste0("Combo_Report_v", version(), ".html"),
@@ -1667,24 +1728,27 @@ itrex_server <- function(input, output, session) {
   session$onSessionEnded(function() {
     cat("Session Ended\n")
 
-    log_dir <- Sys.getenv("ITREX_LOG_DIR")
-    if (nchar(log_dir)) {
-      cat("Secure Deletion Started\n")
-      srm_command <- paste0("srm -r -f -v '", project_dir, "'")
-      srm_output <- system(paste(srm_command, "2>&1"), intern = TRUE)
+    future::plan(future::multisession, workers = 2)
+    future::future({
+      log_dir <- Sys.getenv("ITREX_LOG_DIR")
+      if (nchar(log_dir)) {
+        cat("Secure Deletion Started\n")
+        srm_command <- paste0("srm -r -f -v '", project_dir, "'")
+        srm_output <- system(paste(srm_command, "2>&1"), intern = TRUE)
 
-      host_name <- as.character(Sys.info()["nodename"])
+        host_name <- as.character(Sys.info()["nodename"])
 
-      date_time <- format(Sys.time(), "%Y-%m-%d-%H-%M-%S")
-      log_file_name <- paste0(date_time, "-srm-", basename(project_dir), ".log")
-      log_file_path <- file.path(log_dir, log_file_name)
+        date_time <- format(Sys.time(), "%Y-%m-%d-%H-%M-%S")
+        log_file_name <- paste0(date_time, "-srm-", basename(project_dir), ".log")
+        log_file_path <- file.path(log_dir, log_file_name)
 
-      log_file <- file(log_file_path)
-      writeLines(c(host_name, date_time, srm_output, "Done."), log_file)
-      close(log_file)
-      cat("Secure Deletion Finished\n")
-    }
+        log_file <- file(log_file_path)
+        writeLines(c(host_name, date_time, srm_output, "Done."), log_file)
+        close(log_file)
+        cat("Secure Deletion Finished\n")
+      }
 
-    unlink(project_dir, recursive = TRUE)
+      unlink(project_dir, recursive = TRUE)
+    })
   })
 }

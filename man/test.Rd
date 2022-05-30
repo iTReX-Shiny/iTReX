@@ -4,12 +4,15 @@
 \alias{test}
 \title{Run iTReX tests}
 \usage{
-test(testnames = NULL, quiet = FALSE)
+test(testnames = NULL, quiet = FALSE, url = NULL)
 }
 \arguments{
-\item{testnames}{Passed to [shinytest::testApp]}
+\item{testnames}{Passed to \code{\link[shinytest:testApp]{shinytest::testApp()}}}
 
-\item{quiet}{Passed to [shinytest::testApp]}
+\item{quiet}{Passed to \code{\link[shinytest:testApp]{shinytest::testApp()}}}
+
+\item{url}{URL of test-mode Shiny instance to connect to.
+Requires a customized {shinytest} instance as of {shinytest} v1.5.1.}
 }
 \description{
 Run iTReX tests

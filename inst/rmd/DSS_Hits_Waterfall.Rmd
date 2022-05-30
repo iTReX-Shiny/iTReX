@@ -10,11 +10,11 @@ output: html_document
 MRA_dss_list <- list()
 data_n <- readxl::read_xlsx(file.path(output_dir, paste0(PID, "_mono.xlsx")))
 
-combo_data <- data_n[grepl("combo_", data_n$Drug.Name), ]
+combo_data <- data_n[grepl("^combo_", data_n$Drug.Name), ]
 if (nrow(combo_data) == 0) {
   mono_data <- data_n
 } else {
-  mono_data <- data_n[!grepl("combo_", data_n$Drug.Name), ]
+  mono_data <- data_n[!grepl("^combo_", data_n$Drug.Name), ]
 }
 
 mono_data$DSS_asym <- as.numeric(mono_data$DSS_asym)
@@ -106,7 +106,8 @@ plotly::ggplotly(hit_rank, width = 1000, height = 500)
 MRA_dss_list[[length(MRA_dss_list) + 1]] <- hit_rank
 
 names(MRA_dss_list) <- c("pn", "gscatter", "hit_rank")
-saveRDS(MRA_dss_list, file.path(output_dir, "pre_process", "MRA_dss_list.rds"))
+save_rds(MRA_dss_list, output_dir, "MRA_dss_list")
+itrex_env[[PID]]$MRA_dss_list <- MRA_dss_list
 ```
 
 ```{r}

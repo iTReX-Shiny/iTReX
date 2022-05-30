@@ -3,9 +3,18 @@
 ## Author: Dina ElHarouni ##
 ############################
 
+get_conc_unit <- function(input) {
+  switch(input$conc_select,
+    "other" = input$conc_text,
+    input$conc_select
+  )
+}
+
 MRA.mod <- function(input, drdata, output_dir, control_dir, PID,
-                    np = "all", run_type = "mono", heatmap_dir) {
+                    np = "all", run_type = "mono", heatmap_dir, itrex_env) {
   debug_save(drdata)
+
+  conc_unit <- get_conc_unit(input)
 
   # prepare therapy list
   colnames(drdata)[colnames(drdata) == "normVal"] <- "viability"
@@ -22,7 +31,7 @@ MRA.mod <- function(input, drdata, output_dir, control_dir, PID,
   colnames(finaltable2) <- c("DRUG", "IC50", "SLOPE", "MIN", "MAX", "min.conc", "max.conc")
 
   DSStable2 <- data.frame(matrix(ncol = 11, nrow = n))
-  colnames(DSStable2) <- c("Drug.ID", "Drug.Name", "abs_IC25", "abs_IC75", "abs_IC50", "rel_IC50", "Slope", "Imin", "Imax", "MIN.Conc.tested.nM", "MAX.Conc.tested.nM")
+  colnames(DSStable2) <- c("Drug.ID", "Drug.Name", "abs_IC25", "abs_IC75", "abs_IC50", "rel_IC50", "Slope", "Imin", "Imax", paste0("MIN.Conc.tested.", conc_unit), paste0("MAX.Conc.tested.", conc_unit))
 
   Dinhibit <- data.frame(matrix(ncol = 8, nrow = n))
   colnames(Dinhibit) <- c("DSS_asym", "PI1", "PI2", "PI3", "PI4", "PI5", "GOF", "Amin")
@@ -38,7 +47,7 @@ MRA.mod <- function(input, drdata, output_dir, control_dir, PID,
   for (i in seq_len(n)) {
     # drug parameters
     model <- tryCatch(nplr::nplr(x = splitlist[[i]]$dose, y = splitlist[[i]]$IC, npars = np, silent = TRUE), error = function(err) NA)
-    if (is.na(model)) {
+    if (!inherits(model, "nplr")) {
       DSStable2[i, ] <- c(i, 0, NA, NA, NA, NA, NA, NA, NA, NA, NA)
       Dinhibit[i, ] <- c("failed", NA, NA, NA, NA, NA, NA, NA)
       curve <- NA
@@ -132,9 +141,17 @@ MRA.mod <- function(input, drdata, output_dir, control_dir, PID,
       )
     }
     curvelist[[i]] <- curve
-    path <- file.path(output_dir, "dose_response_curves", paste0(titleframe[i, ], ".png"))
+    dir_prefix <- if (run_type == "mono_rep") "rep_" else ""
+    curve_dir <- paste0(dir_prefix, "dose_response_curves")
+    path <- file.path(output_dir, curve_dir, paste0(titleframe[i, ], ".png"))
+    path_pdf <- file.path(output_dir, curve_dir, paste0(titleframe[i, ], ".pdf"))
     grDevices::png(filename = path)
-    plot.iscreen(drdata = splitlist[[i]], curve = curve, error = error, IC50 = IC50, title = as.character(paste0(titleframe[i, ], "_", PID)))
+    plot.iscreen(
+      drdata = splitlist[[i]], conc_unit = conc_unit, curve = curve, error = error, IC50 = IC50,
+      title = as.character(paste0(titleframe[i, ], "_", PID))
+    )
+    dim <- grDevices::dev.size()
+    ggplot2::ggsave(path_pdf, device = "pdf", width = dim[1], height = dim[2])
     grDevices::graphics.off()
     openxlsx::insertImage(wb, 1, width = 2.3, height = 2.3, file = path, startRow = 1 + i, startCol = 17, units = "in")
   }
@@ -167,14 +184,20 @@ MRA.mod <- function(input, drdata, output_dir, control_dir, PID,
 
   openxlsx::writeDataTable(wb, 1, nplr_inhibitor)
 
+  save_rds(curvelist, output_dir, paste0(PID, "_curves_", run_type), subdir = "")
+  openxlsx::saveWorkbook(wb, file.path(output_dir, paste0(PID, "_", run_type, ".xlsx")), overwrite = TRUE)
   if (run_type == "mono") {
-    openxlsx::saveWorkbook(wb, file.path(output_dir, paste0(PID, "_mono.xlsx")), overwrite = TRUE)
-    saveRDS(curvelist, file.path(output_dir, paste0(PID, "_curves_mono.rds")))
-    openxlsx::saveWorkbook(wb, file.path(heatmap_dir, paste0(PID, "_MRA.xlsx")), overwrite = TRUE)
+    itrex_env[[PID]]$curvelist_mono <- curvelist
+    heatmap_name <- "MRA"
+  } else if (run_type == "mono_rep") {
+    itrex_env[[PID]]$curvelist_mono <- curvelist
+    heatmap_name <- NULL
   } else {
-    openxlsx::saveWorkbook(wb, file.path(output_dir, paste0(PID, "_combo.xlsx")), overwrite = TRUE)
-    saveRDS(curvelist, file.path(output_dir, paste0(PID, "_curves_combo.rds")))
-    openxlsx::saveWorkbook(wb, file.path(heatmap_dir, paste0(PID, "_CRA.xlsx")), overwrite = TRUE)
+    itrex_env[[PID]]$curvelist_combo <- curvelist
+    heatmap_name <- "CRA"
+  }
+  if (!is.null(heatmap_name)) {
+    openxlsx::saveWorkbook(wb, file.path(heatmap_dir, paste0(PID, "_", heatmap_name, ".xlsx")), overwrite = TRUE)
   }
 
   MRAlist <- list("nplr_inhibitor" = nplr_inhibitor, "wb" = wb, "splitlist" = splitlist)
@@ -182,11 +205,13 @@ MRA.mod <- function(input, drdata, output_dir, control_dir, PID,
   return(MRAlist)
 }
 
-CRA.mod <- function(combo_nplr, output_dir, splitlist, PID, heatmap_dir) {
+CRA.mod <- function(input, combo_nplr, output_dir, splitlist, PID, heatmap_dir, itrex_env, conc_unit) {
+  conc_unit <- get_conc_unit(input)
+
   single_combo <- combo_nplr
-  single <- single_combo[-grep("combo_", single_combo$Drug.Name), ]
-  combo <- single_combo[grep("combo_", single_combo$Drug.Name), ]
-  combo$Drug.Name <- gsub("combo_", "", combo$Drug.Name)
+  single <- single_combo[-grep("^combo_", single_combo$Drug.Name), ]
+  combo <- single_combo[grep("^combo_", single_combo$Drug.Name), ]
+  combo$Drug.Name <- gsub("^combo_", "", combo$Drug.Name)
 
   single <- data.frame("Drug.Name" = single$Drug.Name, "cPI1" = single$PI1, "cPI2" = single$PI2, "cPI3" = single$PI3, "cPI4" = single$PI4, "cPI5" = single$PI5)
   rownames(single) <- single$Drug.Name
@@ -205,7 +230,7 @@ CRA.mod <- function(combo_nplr, output_dir, splitlist, PID, heatmap_dir) {
   s_c$dPI5 <- (s_c$PI5 - s_c$cPI5)
 
   dD <- s_c[, c("Drug.Name", "dPI1", "dPI2", "dPI3", "dPI4", "dPI5")]
-  dsD <- dD[, c("Drug.Name", "dPI1", "dPI2", "dPI3", "dPI4", "dPI5")] # TODO
+  dsD <- dD[, c("Drug.Name", "dPI1", "dPI2", "dPI3", "dPI4", "dPI5")]
   dD <- dD[, 1:6]
 
   long_DF2 <- dsD %>% tidyr::gather("Dose", "dsD", .data$dPI1:.data$dPI5)
@@ -213,7 +238,7 @@ CRA.mod <- function(combo_nplr, output_dir, splitlist, PID, heatmap_dir) {
 
   # get splitl
   conc_df <- do.call(rbind.data.frame, splitlist)
-  conc_df <- conc_df[-grep("combo", conc_df$Treatment), ]
+  conc_df <- conc_df[-grep("^combo_", conc_df$Treatment), ]
   conc_df <- conc_df[order(conc_df$Treatment, conc_df$dose), ]
 
   conc_df <- unique(conc_df[c("Treatment", "dose")])
@@ -234,9 +259,9 @@ CRA.mod <- function(combo_nplr, output_dir, splitlist, PID, heatmap_dir) {
 
 
   single_combo <- combo_nplr
-  single <- single_combo[-grep("combo", single_combo$Drug.Name), ]
-  combo <- single_combo[grep("combo", single_combo$Drug.Name), ]
-  combo$Drug.Name <- gsub("combo_", "", combo$Drug.Name)
+  single <- single_combo[-grep("^combo_", single_combo$Drug.Name), ]
+  combo <- single_combo[grep("^combo_", single_combo$Drug.Name), ]
+  combo$Drug.Name <- gsub("^combo_", "", combo$Drug.Name)
   rownames(single) <- single$Drug.Name
   rownames(combo) <- combo$Drug.Name
   intersect_drugs <- intersect(rownames(combo), rownames(single))
@@ -253,17 +278,17 @@ CRA.mod <- function(combo_nplr, output_dir, splitlist, PID, heatmap_dir) {
 
   Synergy_df$dcDSS_asym <- combo$dcDSS_asym
 
-  curvelist_mono <- readRDS(file.path(output_dir, paste0(PID, "_curves_mono.rds")))
-  curvelist_combo <- readRDS(file.path(output_dir, paste0(PID, "_curves_combo.rds")))
-  datapoint_mono <- readRDS(file.path(output_dir, paste0("pre_process/", PID, "_mono.rds")))
-  datapoint_combo <- readRDS(file.path(output_dir, paste0("pre_process/", PID, "_combo.rds")))
+  curvelist_mono <- itrex_env[[PID]]$curvelist_mono
+  curvelist_combo <- itrex_env[[PID]]$curvelist_combo
+  datapoint_mono <- itrex_env[[PID]]$datapoint_mono
+  datapoint_combo <- itrex_env[[PID]]$datapoint_combo
   GOF_mono <- datapoint_mono$nplr_inhibitor
   GOF_combo <- datapoint_combo$nplr_inhibitor
   splt_mono <- datapoint_mono$splitlist
   splt_combo <- datapoint_combo$splitlist
-  names(curvelist_combo) <- gsub("combo_", "", names(curvelist_combo))
-  names(splt_combo) <- gsub("combo_", "", names(splt_combo))
-  GOF_combo$Drug.Name <- gsub("combo_", "", GOF_combo$Drug.Name)
+  names(curvelist_combo) <- gsub("^combo_", "", names(curvelist_combo))
+  names(splt_combo) <- gsub("^combo_", "", names(splt_combo))
+  GOF_combo$Drug.Name <- gsub("^combo_", "", GOF_combo$Drug.Name)
 
   wb <- openxlsx::createWorkbook()
   openxlsx::addWorksheet(wb, "sheet 1", gridLines = TRUE)
@@ -295,7 +320,7 @@ CRA.mod <- function(combo_nplr, output_dir, splitlist, PID, heatmap_dir) {
       geom_ribbon(data = onecurve_drug, aes(x = .data$dose, y = .data$response, group = .data$type, ymin = .data$error_min, ymax = .data$error_max), alpha = 0.5, fill = "grey74") +
       geom_line(data = onecurve_drug, aes(x = .data$dose, y = .data$response, group = .data$type, col = .data$type), size = 1.2) +
       geom_point(data = onepoint_drug, aes(x = .data$dose, y = .data$IC * 100, group = .data$type, col = .data$type), size = 1.2) +
-      labs(x = "Concentration (nM)", y = "% Inhibition", size = 18) +
+      labs(x = paste0("Concentration (", conc_unit, ")"), y = "% Inhibition", size = 18) +
       ggtitle(as.character(paste0(titleframe[i, ], "_", PID))) +
       theme(plot.title = element_text(hjust = 0.5, size = 20, face = "bold"), axis.text = element_text(size = 20, face = "bold"), axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
       scale_x_continuous(trans = "log10", labels = function(n) {
@@ -319,11 +344,11 @@ CRA.mod <- function(combo_nplr, output_dir, splitlist, PID, heatmap_dir) {
 }
 
 HitNet.mod <- function(drdata, DT_targets, rank_based = "DSS_asym", threshold = 5) {
-  interactions <- OmnipathR::import_omnipath_interactions(resources = c("SignaLink3"), organism = 9606)
+  interactions <- OmnipathR::import_omnipath_interactions(resources = "SignaLink3", organism = 9606)
 
   debug_save(drdata, DT_targets)
 
-  drdata$Drug.Name <- gsub("combo_", "", drdata$Drug.Name)
+  drdata$Drug.Name <- gsub("^combo_", "", drdata$Drug.Name)
   topD <- as.data.frame(drdata[order(-drdata[, c(rank_based)]), c(rank_based, "Drug.Name")])
   topD <- topD[1:threshold, ]$Drug.Name
 
@@ -385,7 +410,7 @@ Omics.mod <- function(drdata, omics_df, interactions, DT_targets, rank_based = "
   if (is.null(network_hit)) {
     network_l <- NULL
   } else {
-    drdata$Drug.Name <- gsub("combo_", "", drdata$Drug.Name)
+    drdata$Drug.Name <- gsub("^combo_", "", drdata$Drug.Name)
     topD <- as.data.frame(drdata[order(-drdata[, c(rank_based)]), c(rank_based, "Drug.Name")])
     topD <- topD[1:threshold, ]$Drug.Name
 

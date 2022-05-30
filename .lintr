@@ -1,7 +1,24 @@
-linters: with_defaults(
-  open_curly_linter = NULL, # https://github.com/jimhester/lintr/issues/487
+linters: linters_with_tags(
   object_usage_linter = NULL, # to be fixed
   line_length_linter = NULL, # to be fixed
   object_name_linter = NULL, # to be fixed
-  cyclocomp_linter = NULL # to be fixed
+  cyclocomp_linter = NULL, # to be fixed
+  # tags = "default"
+  extraction_operator_linter = NULL, # to be fixed
+  implicit_integer_linter = NULL, # to be fixed
+  undesirable_function_linter = NULL, # to be fixed
+  nonportable_path_linter = NULL, # false positives with URLs and MIME types, compare https://github.com/r-lib/lintr/issues/468
+  missing_argument_linter = missing_argument_linter(
+    except = c(
+      "check", "glue", "kable_styling", "layout_with_dh", "plot.igraph", "render", # various
+      "aes", "element_text", "geom_bar", "geom_ribbon", "geom_line", "theme",      # ggplot2
+      "a", "checkboxInput", "column", "conditionalPanel", "downloadHandler",       # shiny
+      "fluidRow", "h4", "h5", "h6", "HTML", "modalDialog", "myDropDownButton",     # shiny
+      "navbarPage", "p", "selectInput", "sidebarPanel", "sliderInput", "span",     # shiny
+      "tabPanel", "tagList", "b", "head", "li", "ul", "radioButtons",              # shiny
+      "updateRadioButtons",                                                        # shiny
+      "switch", "alist"                                                            # default
+    )
+  ),
+  tags = NULL
   )

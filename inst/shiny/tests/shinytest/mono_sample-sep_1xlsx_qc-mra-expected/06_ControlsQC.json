@@ -2,6 +2,8 @@
   "input": {
     "Amin_select": "var10",
     "Amin_slider": 10,
+    "conc_select": "nM",
+    "conc_text": "Unit",
     "CRA_colcluster": "euclidean",
     "CRA_include_sd": true,
     "CRA_include_zp": true,
@@ -33,7 +35,7 @@
         "iTReX-Demo_MRA_Layout-Imaging-1Plate_ST06.xlsx"
       ],
       "size": [
-        24049
+        23977
       ],
       "type": [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -70,11 +72,11 @@
       ]
     },
     "reference_samples_file": null,
-    "sample": "_BT-40-V3-DS1_ST05",
-    "sample_CRA": "_BT-40-V3-DS1_ST05",
-    "sample_MRA": "_BT-40-V3-DS1_ST05",
-    "sample_net": "_BT-40-V3-DS1_ST05",
-    "sample_omics": "_BT-40-V3-DS1_ST05",
+    "sample": "BT-40-V3-DS1_ST05",
+    "sample_CRA": "BT-40-V3-DS1_ST05",
+    "sample_MRA": "BT-40-V3-DS1_ST05",
+    "sample_net": "BT-40-V3-DS1_ST05",
+    "sample_omics": "BT-40-V3-DS1_ST05",
     "screen_type": "Monotherapy",
     "screen_type_O": "Monotherapy",
     "start_oca": 1,
@@ -107,7 +109,93 @@
     ],
     "summary_rows_selected": null,
     "summary_search": "",
-    "summary_state": null,
+    "summary_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
     "TCA": 0,
     "threshold": 2,
     "threshold_O": 2,
@@ -123,7 +211,7 @@
   },
   "output": {
     "BzCl": {
-      "src": "[image data sha1: 0ebd0394b5dd7ad25813955978cee39463e6e086]",
+      "src": "[image data sha1: de3ae78db550da5777d2c5e91c8c5dba80cc71fd]",
       "width": 1000,
       "height": 600,
       "alt": "Plot object",
@@ -158,7 +246,7 @@
       }
     },
     "DMSO": {
-      "src": "[image data sha1: 985780b771259bc961024cf4124d19c0e2020a45]",
+      "src": "[image data sha1: 9d31a71d0e00fd1ff897ff6883a273d3dbdaed8a]",
       "width": 1000,
       "height": 600,
       "alt": "Plot object",
@@ -216,7 +304,7 @@
     "end_oca": "One-Click Analysis is complete.",
     "layout_table_uploaded": true,
     "layout1": {
-      "src": "[image data sha1: c22b61bbd71e47ab267ca241432820434777f864]",
+      "src": "[image data sha1: 125abd1778b50e5c6734bbf20dc8cf90e9a3713a]",
       "width": 1300,
       "height": 900,
       "alt": "Plot object",
@@ -253,7 +341,7 @@
     "readout_matrices_uploaded": true,
     "reference_samples_uploaded": false,
     "scatter": {
-      "src": "[image data sha1: 5458f4adb8174d00f79292596d9a6299adcbbd50]",
+      "src": "[image data sha1: 739d411f1d058a04b90bb79bb9de24c4e17c269d]",
       "width": 800,
       "height": 600,
       "alt": "Plot object",
@@ -288,7 +376,7 @@
       }
     },
     "screen": {
-      "src": "[image data sha1: b083aa9cd2400d68ac3a9c8f3c117647abe77082]",
+      "src": "[image data sha1: b0d55244c8a228812dbac92e5d0c8aa03362fc4c]",
       "width": 1230,
       "height": 400,
       "alt": "Plot object",
@@ -328,45 +416,45 @@
         "vertical": false,
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>BzCl<\/th>\n      <th>empty<\/th>\n      <th>neg<\/th>\n      <th>pos<\/th>\n      <th>therapy<\/th>\n      <th>TRC<\/th>\n      <th>untreated<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
-          "order": [
-
-          ],
-          "autoWidth": false,
-          "orderClasses": false,
           "columnDefs": [
             {
               "targets": 1,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 2,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 3,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 4,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 5,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 6,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "targets": 7,
-              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\");\n  }"
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"
             },
             {
               "orderable": false,
               "targets": 0
             }
           ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
           "ajax": {
             "type": "POST",
             "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
@@ -449,7 +537,7 @@
     "textsmall1": "Positive Control",
     "textsmall2": "Negative Control",
     "well": {
-      "src": "[image data sha1: 59b774da78d2a5697d05439271a602f2b9ba7e0c]",
+      "src": "[image data sha1: 3df46b72633b079026fc33c4be5a5bc2cce38b0d]",
       "width": 1100,
       "height": 900,
       "alt": "Plot object",

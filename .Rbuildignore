@@ -2,6 +2,9 @@
 ^\.Rproj\.user$
 ^.aspell$
 ^.lintr$
+^.vscode$
+^debug$
+^drugbank$
 ^omnipathr-log$
 ^doc$
 ^Meta$
