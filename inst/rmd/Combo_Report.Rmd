@@ -94,6 +94,5 @@ plotly::ggplotly(h2, height = 700, width = 600)
 CRA_report_list[[length(CRA_report_list) + 1]] <- h2
 
 names(CRA_report_list) <- c("d", "dPI", "dPI_sh")
-save_rds(CRA_report_list, output_dir, "CRA_report_list")
 itrex_env[[PID]]$CRA_report_list <- CRA_report_list
 ```

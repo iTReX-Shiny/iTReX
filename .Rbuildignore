@@ -1,8 +1,9 @@
 ^iTReX\.Rproj$
 ^\.Rproj\.user$
-^.aspell$
-^.lintr$
-^.vscode$
+^\.aspell$
+^\.github$
+^\.lintr$
+^\.vscode$
 ^debug$
 ^drugbank$
 ^omnipathr-log$

@@ -86,6 +86,18 @@ normalize_by_plate <- function(df) {
     ungroup()
 }
 
+normalize_by_treat <- function(df) {
+  group_by(df, .data$Treatment) %>%
+    mutate(normVal = normalized_values(.data)) %>%
+    ungroup()
+}
+
+normalize_by_treat_and_plate <- function(df) {
+  group_by(df, .data$Treatment, .data$Plate) %>%
+    mutate(normVal = normalized_values(.data)) %>%
+    ungroup()
+}
+
 ## Normalized values using pos/neg medians
 normalized_values <- function(x) {
   pos <- stats::median(x$Readout[x$WellType == "pos"])

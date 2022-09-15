@@ -84,7 +84,6 @@ d2 <- d
 MRA_sdss_list[[length(MRA_sdss_list) + 1]] <- d2
 
 names(MRA_sdss_list) <- c("d", "gscatter2", "d2")
-save_rds(MRA_sdss_list, output_dir, "MRA_sdss_list")
 itrex_env[[PID]]$MRA_sdss_list <- MRA_sdss_list
 ```
 

@@ -61,6 +61,75 @@ omniPathLicenseButton <- function(mod) {
   )
 }
 
+cohortTabPanel <- function(mod = c("MRA", "CRA")) {
+  tabPanel(
+    "Cohort Screen",
+    value = paste0(mod, "-mod/Cohort Screen"),
+    sidebarLayout(
+      sidebarPanel(
+        "Cohort (Project) Heatmap",
+        selectInput(
+          paste0(mod, "_rowcluster"), "Clustering Distance Rows:",
+          choices = choices,
+        ),
+        selectInput(
+          paste0(mod, "_colcluster"), "Clustering Distance Columns:",
+          choices = choices,
+        ),
+        checkboxInput(
+          paste0(mod, "_sdss"), "Show sDSS",
+        ),
+        checkboxInput(
+          paste0(mod, "_include_sd"), "Show Drug SDs",
+          value = TRUE,
+        ),
+        checkboxInput(
+          paste0(mod, "_include_zp"), "Show z' Values",
+          value = TRUE,
+        ),
+        checkboxInput(
+          paste0(mod, "_filter_zp"), "Filter by z' Values",
+        ),
+        conditionalPanel(
+          paste0("input.", mod, "_filter_zp"),
+          sliderInput(
+            paste0(mod, "_threshold_zp"), "z' Threshold Value:",
+            min = -1, max = 1, value = 0.5, step = 0.05,
+          ),
+          radioButtons(
+            paste0(mod, "_filter_mode_zp"), "Filter Mode:",
+            choices = list(
+              "Screen" = "screen",
+              "All Plates" = "all",
+              "Any Plate" = "any"
+            ),
+            selected = "screen",
+            inline = TRUE,
+          ),
+        ),
+        sliderInput(
+          paste0(mod, "c_width"), "Plot Width:",
+          min = 10, max = 2000, value = 500,
+        ),
+        sliderInput(paste0(mod, "c_height"), "Plot Height:",
+          min = 10, max = 2000, value = 250,
+        ),
+        conditionalPanel(
+          "(input.number_of_samples == 'cohort') && input.start_oca",
+          uiOutput(paste0("download_", mod, "cohorthp")),
+        ),
+        conditionalPanel(
+          "(input.number_of_samples == 'single_sample') && input.start_oca",
+          h6("This is not a cohort screen, a heatmap cannot be generated."),
+        ),
+      ),
+      mainPanel(
+        plotOutput(paste0(mod, "cohort_hp")),
+      ),
+    )
+  )
+}
+
 doiLink <- function(doi) {
   url <- paste0("https://doi.org/", doi)
   a(href = url, url)
@@ -69,6 +138,8 @@ doiLink <- function(doi) {
 mailtoLink <- function(email, suffix = "") {
   tagList(a(href = paste0("mailto:", email), "\u2709"), paste0(email, suffix))
 }
+
+drugbankDownload <- "https://go.drugbank.com/releases/5-1-9/downloads/"
 
 itrex_footer <- function() {
   tags$footer(tags$br(), tags$small(tags$b(
@@ -274,6 +345,11 @@ itrex_ui <- function() {
               ),
             ),
             textInput("conc_text", "Custom Unit", value = "Unit"),
+            radioButtons("type_of_normalization", "Level of Normalization",
+              choiceNames = list("Plate/Replicate", "Treatment/Cell", "Both"),
+              choiceValues = list("per_plate", "per_treat", "norm_both"),
+              inline = TRUE,
+            ),
             selectInput(
               "Amin_select",
               "DSS Activity Threshold (Amin)",
@@ -477,37 +553,7 @@ itrex_ui <- function() {
             )
           )
         ),
-        tabPanel(
-          "Cohort Screen",
-          value = "MRA-mod/Cohort Screen",
-          sidebarLayout(
-            sidebarPanel(
-              "Cohort (Project) Heatmap",
-              selectInput("MRA_rowcluster", "Clustering Distance Rows:", choices = choices),
-              selectInput("MRA_colcluster", "Clustering Distance Columns:", choices = choices),
-              checkboxInput("MRA_sdss", "Show sDSS"),
-              checkboxInput("MRA_include_sd", "Show Drug SDs", value = TRUE),
-              checkboxInput("MRA_include_zp", "Show z' Values", value = TRUE),
-              sliderInput("MRAc_width", "Plot Width:",
-                min = 10, max = 2000, value = 500
-              ),
-              sliderInput("MRAc_height", "Plot Height:",
-                min = 10, max = 2000, value = 250
-              ),
-              conditionalPanel(
-                "(input.number_of_samples == 'cohort') && input.start_oca",
-                uiOutput("download_MRAcohorthp")
-              ),
-              conditionalPanel(
-                "(input.number_of_samples == 'single_sample') && input.start_oca",
-                h6("This is not a cohort screen, a heatmap cannot be generated.")
-              )
-            ),
-            mainPanel(
-              plotOutput("MRAcohort_hp")
-            )
-          )
-        )
+        cohortTabPanel("MRA"),
       ),
       navbarMenu(
         "CRA-mod",
@@ -582,37 +628,7 @@ itrex_ui <- function() {
             )
           )
         ),
-        tabPanel(
-          "Cohort Screen",
-          value = "CRA-mod/Cohort Screen",
-          sidebarLayout(
-            sidebarPanel(
-              "Cohort (Project) Heatmap",
-              selectInput("CRA_rowcluster", "Clustering Distance Rows:", choices = choices),
-              selectInput("CRA_colcluster", "Clustering Distance Columns:", choices = choices),
-              checkboxInput("CRA_sdss", "Show sDSS"),
-              checkboxInput("CRA_include_sd", "Show Drug SDs", value = TRUE),
-              checkboxInput("CRA_include_zp", "Show z' Values", value = TRUE),
-              sliderInput("CRAc_width", "Plot Width:",
-                min = 10, max = 2000, value = 500
-              ),
-              sliderInput("CRAc_height", "Plot Height:",
-                min = 10, max = 2000, value = 250
-              ),
-              conditionalPanel(
-                "(input.number_of_samples == 'cohort') && input.start_oca",
-                uiOutput("download_cohorthp")
-              ),
-              conditionalPanel(
-                "(input.number_of_samples == 'single_sample') && input.start_oca",
-                h6("This is not a cohort screen, a heatmap cannot be generated.")
-              )
-            ),
-            mainPanel(
-              plotOutput("CRAcohort_hp")
-            )
-          )
-        )
+        cohortTabPanel("CRA"),
       ),
       tabPanel(
         "HitNet-mod",
@@ -657,12 +673,12 @@ itrex_ui <- function() {
               ),
               h6(
                 "Upload the DrugBank Target Links annotation .csv file, you can download the .csv from",
-                a(href = "https://go.drugbank.com/releases/5-1-8/downloads/target-all-uniprot-links", "here")
+                a(href = paste0(drugbankDownload, "target-all-uniprot-links"), "here"),
               ),
               fileInput("file_drugbank", "DrugBank annotation file"),
               h6(
                 "Upload the DrugBank drug targets all.csv file, you can download the .csv from",
-                a(href = "https://go.drugbank.com/releases/5-1-8/downloads/target-all-polypeptide-ids", "here")
+                a(href = paste0(drugbankDownload, "target-all-polypeptide-ids"), "here"),
               ),
               fileInput("file_drugtarget", "DrugBank targets file")
             ),
@@ -727,12 +743,12 @@ itrex_ui <- function() {
               ),
               h6(
                 "Upload the DrugBank Target Links annotation .csv file, you can download the .csv from",
-                a(href = "https://go.drugbank.com/releases/5-1-8/downloads/target-all-uniprot-links", "here")
+                a(href = paste0(drugbankDownload, "target-all-uniprot-links"), "here"),
               ),
               fileInput("file_drugbankO", "DrugBank annotation file"),
               h6(
                 "Upload the DrugBank drug targets all.csv file, you can download the .csv from",
-                a(href = "https://go.drugbank.com/releases/5-1-8/downloads/target-all-polypeptide-ids", "here")
+                a(href = paste0(drugbankDownload, "target-all-polypeptide-ids"), "here"),
               ),
               fileInput("file_drugtargetO", "DrugBank targets file")
             ),

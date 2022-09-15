@@ -200,6 +200,5 @@ plotlist <- list(
 
 # merge list and save
 QCN_list <- c(QCN_list, plotlist)
-save_rds(QCN_list, output_dir, "QCN_list")
 itrex_env[[PID]]$QCN_list <- QCN_list
 ```

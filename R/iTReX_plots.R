@@ -491,10 +491,12 @@ plot_cohort_heatmap <- function(input, output, mod, heatmap_dir) {
   row_cluster <- input[[paste0(mod, "_rowcluster")]]
   col_cluster <- input[[paste0(mod, "_colcluster")]]
 
-  if (input[[paste0(mod, "_include_zp")]]) {
+  include_zp <- input[[paste0(mod, "_include_zp")]]
+  filter_zp <- input[[paste0(mod, "_filter_zp")]]
+  if (include_zp || filter_zp) {
     zprime <- data.frame()
     pids <- rownames(xDSS_m)
-    plate_zpr <- do.call(rbind, lapply(pids, function(pid) {
+    zprs <- do.call(rbind, lapply(pids, function(pid) {
       pid_qc_file <- file.path(heatmap_dir, "..", "QC", paste0(pid, "_QC.xlsx"))
       pid_qc_df <- openxlsx::read.xlsx(pid_qc_file, rowNames = TRUE)
       zprime_columns <- endsWith(rownames(pid_qc_df), "_zprime_r")
@@ -506,26 +508,44 @@ plot_cohort_heatmap <- function(input, output, mod, heatmap_dir) {
       names(zprime_values) <- zprime_names
       zprime_values
     }))
-    rownames(plate_zpr) <- pids
-    debug_save(plate_zpr)
+    rownames(zprs) <- pids
+    debug_save(zprs)
+  }
 
+  if (filter_zp) {
+    threshold <- input[[paste0(mod, "_threshold_zp")]]
+    filter_mode <- input[[paste0(mod, "_filter_mode_zp")]]
+    screen_column <- which(colnames(zprs) == "Screen")
+    screen_zpr <- zprs[, screen_column, drop = FALSE]
+    plate_zpr <- zprs[, -screen_column, drop = FALSE]
+    to_keep <- switch(filter_mode,
+      screen = screen_zpr >= threshold,
+      all = apply(plate_zpr >= threshold, 1, all),
+      any = apply(plate_zpr >= threshold, 1, any),
+      stop("Unknown filter_mode ", filter_mode)
+    )
+    xDSS_m <- xDSS_m[to_keep, , drop = FALSE]
+    zprs <- zprs[to_keep, , drop = FALSE]
+  }
+
+  if (include_zp && nrow(zprs) > 0) {
     # assignment of an object of class “expression” is not valid for @‘name’
     # in an object of class “ColorMapping”
-    # > plate_zpr_label <- expression("z'"[r])
+    # > zpr_label <- expression("z'"[r])
 
     # gt_render requires gridtext and complicates vertical alignment.
-    # > plate_zpr_label <- ComplexHeatmap::gt_render("z'<sub>r</sub>")
+    # > zpr_label <- ComplexHeatmap::gt_render("z'<sub>r</sub>")
 
-    plate_zpr_label <- "z'"
+    zpr_label <- "z'"
 
     row_ha <- ComplexHeatmap::rowAnnotation(
-      plate_zpr = plate_zpr,
-      col = list(plate_zpr = circlize::colorRamp2(
+      zprs = zprs,
+      col = list(zprs = circlize::colorRamp2(
         c(-1, 0, 1),
         c("gray53", "white", "olivedrab")
       )),
-      annotation_legend_param = list(plate_zpr = list(
-        title = plate_zpr_label,
+      annotation_legend_param = list(zprs = list(
+        title = zpr_label,
         title_position = "topleft",
         legend_direction = "horizontal"
       )),

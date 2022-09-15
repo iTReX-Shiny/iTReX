@@ -23,4 +23,12 @@ for (module in names(tab2buttons)) {
   app$snapshot(filename = paste0(module, "_01-Heatmap.json"))
 }
 
+app$setInputs(CRA_filter_zp = TRUE, timeout_ = 300e3)
+app$setInputs(CRA_threshold_zp = 0.85, timeout_ = 300e3)
+app$snapshot(filename = "CRA-02-Heatmap-empty.json")
+
+app$setInputs(CRA_filter_mode_zp = "all", timeout_ = 300e3)
+app$setInputs(CRA_threshold_zp = 0.25, timeout_ = 300e3)
+app$snapshot(filename = "CRA-03-Heatmap-back.json")
+
 shutdown()

@@ -187,14 +187,15 @@ run_hitnet_omics <- function(readout_demo, omics_demo, use_drugbank,
 
     handle <- curl::new_handle(userpwd = userpwd, unrestricted_auth = FALSE)
 
-    get_drugbank <- function(container, filename) {
+    get_drugbank <- function(container, filename, hash) {
       path <- file.path(drugbank_dir, filename)
       if (file.exists(path)) {
+        testthat::expect_identical(hash, rlang::hash_file(path))
         return(path)
       }
 
       url <- paste0(
-        "https://go.drugbank.com/releases/5-1-8/downloads/", container
+        "https://go.drugbank.com/releases/5-1-9/downloads/", container
       )
       zip_file <- tempfile(fileext = ".zip")
       curl::curl_download(url, zip_file, handle = handle)
@@ -204,8 +205,16 @@ run_hitnet_omics <- function(readout_demo, omics_demo, use_drugbank,
       return(path)
     }
 
-    links_file <- get_drugbank("target-all-uniprot-links", "uniprot links.csv")
-    targets_file <- get_drugbank("target-all-polypeptide-ids", "all.csv")
+    links_file <- get_drugbank(
+      "target-all-uniprot-links",
+      "uniprot links.csv",
+      "8bac3c6fb6c9b0b72c84b3936a8aa74d"
+    )
+    targets_file <- get_drugbank(
+      "target-all-polypeptide-ids",
+      "all.csv",
+      "26db90710ae355e69730548ee5b55e2e"
+    )
   }
 
   if (!is.null(hitnet_threshold)) {
