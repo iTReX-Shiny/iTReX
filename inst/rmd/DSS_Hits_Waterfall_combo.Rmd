@@ -65,6 +65,5 @@ hit_rank <- ggplot(data, aes(x = reorder(.data$Drug.Name, -.data$Hit_rank), y = 
 plotly::ggplotly(hit_rank, width = 1000, height = 500)
 CRA_dss_list[[length(CRA_dss_list) + 1]] <- hit_rank
 names(CRA_dss_list) <- c("pn", "gscatter", "hit_rank")
-save_rds(CRA_dss_list, output_dir, "CRA_dss_list")
 itrex_env[[PID]]$CRA_dss_list <- CRA_dss_list
 ```

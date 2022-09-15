@@ -237,7 +237,10 @@ iTRex is able to process data from any plate layout format (e.g; 96, 384, 1536 .
 **6-** Select the concentration unit used in the screen layout uploaded.
 **"Nanomolar (nM)"** is the default setting of iTReX according to the available demo layout. There are multiple alternative options provided such as **"Molar (M)"** or **"Gray (Gy)"**, or a **"Custom Unit"** can be selected and any used concentration unit can be typed into a text box.
 
-**7-** Select the preferred DSS activity threshold (A~min~) setting.
+**7-** Select the type of normalization.
+Normalization is computed based on negative and positive controls, and can be applied group-wise based on up to two columns of the layout table: **Plate** normalizes each plate (which may represent a replicate, as in the demo file) individually, across treatments; **Treatment** normalizes each treatment (which may represent a cell name, depending on the content of the Treatment column in your layout table) individually, across plates; **Both** normalizes each treatment on each plate individually.
+
+**8-** Select the preferred DSS activity threshold (A~min~) setting.
 **"Variable 10% of Imax"** is the default recommended setting of iTReX. There are multiple alternative options provided such as:
 <br>
 
@@ -250,7 +253,7 @@ iTRex is able to process data from any plate layout format (e.g; 96, 384, 1536 .
 **"Flexible threshold"**: By setting this option a slider bar will appear, where you can set any other value according to the biological hypothesis / interest of the project.
 <br>
 
-**8- Start of Analysis:**
+**9- Start of Analysis:**
 <br>
 The analysis can be performed in **"One-Click"** or **"Stepwise"**.
 

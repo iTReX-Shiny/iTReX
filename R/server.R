@@ -82,7 +82,7 @@ read_inputs <- function(input, project_dir) {
       readouts$basename <- basename(readouts$path)
 
       # ignore hidden files
-      readouts <- readouts[substring(readouts$basename, 1, 1) != ".", ]
+      readouts <- readouts[!startsWith(readouts$basename, "."), ]
 
       # sort readouts alphabetically
       readouts <- readouts[order(readouts$basename), ]
@@ -181,7 +181,15 @@ fill_layout_table <- function(input, layout_table, readouts, PID) {
 
   combo_table <- readout_table[!is.na(readout_table$AddOn), ]
   if (nrow(combo_table) == 0) {
-    screenData <- normalize_by_plate(readout_table)
+    if (input$type_of_normalization == "per_plate") {
+      screenData <- normalize_by_plate(readout_table)
+    }
+    if (input$type_of_normalization == "per_treat") {
+      screenData <- normalize_by_treat(readout_table)
+    }
+    if (input$type_of_normalization == "norm_both") {
+      screenData <- normalize_by_treat_and_plate(readout_table)
+    }
   } else {
     single_table <- readout_table[is.na(readout_table$AddOn), ]
     pos_table <- readout_table[readout_table$WellType == "pos", ]
@@ -190,8 +198,18 @@ fill_layout_table <- function(input, layout_table, readouts, PID) {
     combo_table$Plate <- paste0(combo_table$Plate, "_combo")
     combo_table$Treatment <- paste0("combo_", combo_table$Treatment)
 
-    single_table <- normalize_by_plate(single_table)
-    combo_table <- normalize_by_plate(combo_table)
+    if (input$type_of_normalization == "per_plate") {
+      single_table <- normalize_by_plate(single_table)
+      combo_table <- normalize_by_plate(combo_table)
+    }
+    if (input$type_of_normalization == "per_treat") {
+      single_table <- normalize_by_treat(single_table)
+      combo_table <- normalize_by_treat(combo_table)
+    }
+    if (input$type_of_normalization == "norm_both") {
+      single_table <- normalize_by_treat_and_plate(single_table)
+      combo_table <- normalize_by_treat_and_plate(combo_table)
+    }
 
     screenData <- rbind(combo_table, single_table)
   }
@@ -1425,7 +1443,7 @@ itrex_server <- function(input, output, session) {
     height = reactive(input$CRAc_height)
   )
 
-  output$download_cohorthp <- renderUI({
+  output$download_CRAcohorthp <- renderUI({
     downloadButton("CRA_hp_download", "Download Heatmap")
   })
 

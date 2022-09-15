@@ -106,7 +106,6 @@ plotly::ggplotly(hit_rank, width = 1000, height = 500)
 MRA_dss_list[[length(MRA_dss_list) + 1]] <- hit_rank
 
 names(MRA_dss_list) <- c("pn", "gscatter", "hit_rank")
-save_rds(MRA_dss_list, output_dir, "MRA_dss_list")
 itrex_env[[PID]]$MRA_dss_list <- MRA_dss_list
 ```
 

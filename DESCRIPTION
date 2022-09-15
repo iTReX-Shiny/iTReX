@@ -1,7 +1,7 @@
 Type: Package
 Package: iTReX
 Title: interactive Therapy Response eXploration
-Version: 1.2.0
+Version: 1.3.0
 Authors@R:
   c(person(given = "Dina",
            family = "ElHarouni",
@@ -40,6 +40,6 @@ Suggests: BiocCheck, Cairo, curl, devtools, fs, httr, kableExtra, lintr,
     processx, remotes, rmdformats, shinytest, styler, testthat (>= 3.0.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Config/testthat/edition: 3
 VignetteBuilder: knitr
