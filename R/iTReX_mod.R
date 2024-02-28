@@ -255,7 +255,7 @@ CRA.mod <- function(input, combo_nplr, output_dir, splitlist, PID, heatmap_dir, 
 
   Synergy_df <- long2
   Synergy_df <- Synergy_df[, 1:3]
-  Synergy_df <- tidyr::spread(Synergy_df, .data$Dose, dsD)
+  Synergy_df <- tidyr::pivot_wider(data = Synergy_df, names_from = Dose, values_from = dsD, values_fn = list(dsD = mean))
 
 
   single_combo <- combo_nplr
