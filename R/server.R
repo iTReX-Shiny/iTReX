@@ -139,25 +139,25 @@ fill_layout_table <- function(input, layout_table, readouts, PID) {
 
     debug_save(matrix)
 
-    if (length(unique(readout_table$PlateDisplayName)) > 1) {
-      # Compare
-      # > L <- list(data.frame(f = c("a", "b")), data.frame(f = c("c", "d")))
-      # > names(L) <- c("X", "Y")
-      # > rownames(do.call(rbind, L))
-
-      # rownames(matrix) includes the actual file names
-      # table$PlateDisplayName happen to be our expected file names
-      # table$PlateDisplayNameOld for backward compatibility
-      all_names_matrix <- rep(rownames(matrix), each = ncol(matrix))
-
-      if (!all(startsWith(all_names_matrix, readout_table$PlateDisplayName)) &&
-        !all(startsWith(all_names_matrix, readout_table$PlateDisplayNameOld))) {
-        stop(glue::glue(
-          "Suffixes of matrix input files (after final '_' in file names) ",
-          "do not match Plate IDs in the layout for sample '{PID}'."
-        ))
-      }
-    }
+#  #  if (length(unique(readout_table$PlateDisplayName)) > 1) {
+#      # Compare
+#      # > L <- list(data.frame(f = c("a", "b")), data.frame(f = c("c", "d")))
+#      # > names(L) <- c("X", "Y")
+#      # > rownames(do.call(rbind, L))
+#
+#      # rownames(matrix) includes the actual file names
+#      # table$PlateDisplayName happen to be our expected file names
+#     # table$PlateDisplayNameOld for backward compatibility
+#   #   all_names_matrix <- rep(rownames(matrix), each = ncol(matrix))
+#
+#    #  if (!all(startsWith(all_names_matrix, readout_table$PlateDisplayName)) &&
+#    #    !all(startsWith(all_names_matrix, readout_table$PlateDisplayNameOld))) {
+#     #   stop(glue::glue(
+#     #     "Suffixes of matrix input files (after final '_' in file names) ",
+#     #     "do not match Plate IDs in the layout for sample '{PID}'."
+#     #   ))
+#    #  }
+#   # }
 
     # Check that matrices and layout are compatible
     n_mat <- nrow(matrix) * ncol(matrix)

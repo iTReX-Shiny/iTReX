@@ -155,7 +155,7 @@ itrex_ui <- function() {
       $(document).on("shiny:connected", function() {
         try {
           var terms_accepted = sessionStorage.getItem("terms_accepted");
-        } catch {
+        } catch (e) {
           var terms_accepted = false;
         }
         if (terms_accepted === "true") return;
@@ -163,7 +163,7 @@ itrex_ui <- function() {
         Shiny.addCustomMessageHandler("terms-accepted", function(value) {
           try {
             sessionStorage.setItem("terms_accepted", value);
-          } catch {}
+          } catch (e) {}
         })
       });
     ')),
