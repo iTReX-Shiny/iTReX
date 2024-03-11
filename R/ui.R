@@ -155,7 +155,7 @@ itrex_ui <- function() {
       $(document).on("shiny:connected", function() {
         try {
           var terms_accepted = sessionStorage.getItem("terms_accepted");
-        } catch (e) { // Corrected catch block
+        } catch (e) {
           var terms_accepted = false;
         }
         if (terms_accepted === "true") return;
@@ -163,12 +163,10 @@ itrex_ui <- function() {
         Shiny.addCustomMessageHandler("terms-accepted", function(value) {
           try {
             sessionStorage.setItem("terms_accepted", value);
-          } catch (e) {} // Corrected catch block
+          } catch (e) {}
         })
       });
-    '))
-  )
-}
+    ')),
 
     # favicon
     tags$head(tags$link(rel = "shortcut icon", href = "favicon.ico")),
