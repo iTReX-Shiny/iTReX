@@ -118,7 +118,7 @@ nplr_get_estimates <- function(...) {
 
 rmarkdown_render <- function(rmd_stem, output_file) {
   rmarkdown::render(
-    file.path("..", "rmd", paste0(rmd_stem, ".Rmd")),
+    file.path("../rmd", paste0(rmd_stem, ".Rmd")),
     output_file = output_file,
     intermediates_dir = dirname(output_file),
     envir = parent.frame(),
